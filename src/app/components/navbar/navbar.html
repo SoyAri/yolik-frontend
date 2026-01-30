@@ -1,0 +1,55 @@
+@if (ui.visible()) {
+<nav class="fixed top-0 left-0 w-full h-16 bg-white/95 backdrop-blur-md border-b z-[100] px-6 flex items-center justify-between">
+
+  <div class="flex items-center h-full gap-8">
+    <a routerLink="/" class="text-2xl font-black tracking-tighter">YOLIK</a>
+
+    <div class="hidden md:flex h-full gap-2">
+      @for (item of ui.menuItems; track item.id) {
+        @if (item.visible()) {
+          <a [routerLink]="item.path"
+             routerLinkActive="border-b-4 border-yellow-600 text-yellow-600 font-black"
+             [routerLinkActiveOptions]="{exact: item.exact || false}"
+             class="h-full flex items-center px-4 text-xs font-bold uppercase tracking-widest hover:text-yellow-600 transition-all">
+             {{ item.label }}
+          </a>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="flex items-center gap-6">
+    @if (ui.searchVisible()) {
+      <div class="hidden lg:block relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+        <input type="text" placeholder="BUSCAR..." class="pl-9 pr-4 py-2 bg-gray-100 rounded-none text-[10px] tracking-widest focus:outline-none w-44 focus:w-60 transition-all border-b border-transparent focus:border-yellow-600" />
+      </div>
+    }
+
+    <div class="flex items-center gap-4">
+      @if (!ui.isLoggedIn()) {
+        <div class="flex items-center gap-3">
+          <a routerLink="/login" routerLinkActive="text-yellow-600" class="text-[10px] font-bold uppercase tracking-widest hover:text-yellow-600 transition-colors">Login</a>
+          <span class="text-gray-300">|</span>
+          <a routerLink="/registro" routerLinkActive="text-yellow-600" class="text-[10px] font-bold uppercase tracking-widest hover:text-yellow-600 transition-colors">Registro</a>
+        </div>
+      } @else {
+        <div class="flex items-center gap-4">
+          @if (ui.cartVisible()) {
+            <div class="indicator cursor-pointer px-2">
+              <i class="fa-solid fa-bag-shopping text-xl"></i>
+              <span class="badge badge-neutral badge-xs indicator-item bg-yellow-600 border-none text-[8px]">0</span>
+            </div>
+          }
+          @if (ui.profileVisible()) {
+            <div class="flex items-center gap-2 cursor-pointer group">
+              <span class="text-[10px] font-bold uppercase tracking-widest group-hover:text-yellow-600">{{ ui.userName() }}</span>
+              <i class="fa-regular fa-user text-xl"></i>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</nav>
+}

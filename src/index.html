@@ -1,11 +1,41 @@
 <!doctype html>
-<html lang="en">
-<head>
+<html lang="es"> <head>
   <meta charset="utf-8">
-  <title>Yolikfront</title>
+  <title>YOLIK | Moda Típica de Tehuacán</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilo base para que se vea limpio desde el inicio */
+    body {
+      background-color: #ffffff;
+      color: #1a1a1a;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
 </head>
 <body>
   <app-root></app-root>

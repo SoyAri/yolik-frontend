@@ -1,0 +1,45 @@
+<div class="bg-white min-h-screen">
+  <header class="relative h-[50vh] flex items-center justify-center bg-black overflow-hidden">
+    <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2000"
+         class="absolute w-full h-full object-cover opacity-60" alt="Moda YOLIK">
+    <div class="relative text-center text-white px-4">
+      <h1 class="text-6xl font-black uppercase tracking-tighter">Bitácora YOLIK</h1>
+      <p class="text-lg font-light tracking-[0.3em] mt-2 uppercase">Cultura de Tehuacán, Puebla</p>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto py-16 px-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+
+      @for (post of posts; track post.id) {
+        <article class="group">
+          <p-card styleClass="border-none shadow-none overflow-hidden">
+            <ng-template pTemplate="header">
+              <div class="overflow-hidden aspect-video">
+                <img [src]="post.img" class="group-hover:scale-105 transition-transform duration-500 w-full h-full object-cover">
+              </div>
+            </ng-template>
+
+            <div class="py-4">
+              <p-badge [value]="post.tag" severity="contrast" styleClass="rounded-none text-[10px] uppercase mb-4"></p-badge>
+
+              <h2 class="text-3xl font-bold tracking-tight mb-2 group-hover:underline cursor-pointer">
+                {{ post.titulo }}
+              </h2>
+              <p class="text-gray-500 font-light mb-6">{{ post.extracto }}</p>
+
+              <p-button label="Leer más"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        [text]="true"
+                        severity="secondary"
+                        styleClass="p-0 text-black hover:translate-x-2 transition-transform">
+              </p-button>
+            </div>
+          </p-card>
+        </article>
+      }
+
+    </div>
+  </main>
+</div>

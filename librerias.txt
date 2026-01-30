@@ -1,0 +1,33 @@
+1. El Esqueleto: Angular 21
+Es el motor principal. Se encarga de la lógica:
+
+Los Signals para que el Navbar reaccione rápido.
+
+El @for para mostrar la lista de posts.
+
+Los Standalone Components para que cada pieza sea independiente.
+
+2. Los "Bloques" de Construcción: PrimeNG
+Usamos PrimeNG para los elementos que ya vienen con mucha funcionalidad "de caja" para que no tengas que programarlos desde cero:
+
+p-card: Nos da la estructura de la tarjeta (sombra, bordes, separación de imagen y texto).
+
+p-badge: Crea esa etiqueta pequeña (como "Moda" o "Cultura") con estilo profesional.
+
+p-button: Nos da botones que ya incluyen manejo de iconos y estados de carga.
+
+3. La Pintura y el Diseño: Tailwind CSS
+Es lo que usamos para que todo se vea bien y esté en su lugar. En lugar de escribir archivos .css largos, usamos clases directas en el HTML:
+
+Espaciado: Clases como py-16 (padding vertical) o gap-12.
+
+Grid: grid-cols-1 md:grid-cols-2 para que en celular se vea una tarjeta y en compu dos.
+
+Efectos: El backdrop-blur-md del Navbar o el hover:scale-105 de las fotos.
+
+4. El "Toque" Rápido: DaisyUI
+Es un complemento de Tailwind. Lo usamos para cosas muy específicas y sencillas para no saturar con PrimeNG:
+
+La estructura del Navbar original.
+
+Los botones simples como btn-ghost.
