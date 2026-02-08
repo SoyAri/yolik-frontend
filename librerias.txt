@@ -31,3 +31,4 @@ Es un complemento de Tailwind. Lo usamos para cosas muy específicas y sencillas
 La estructura del Navbar original.
 
 Los botones simples como btn-ghost.
+.......
