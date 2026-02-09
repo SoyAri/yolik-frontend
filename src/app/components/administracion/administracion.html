@@ -1,1 +1,185 @@
-<p>administracion works!</p>
+<div class="bg-white min-h-screen flex">
+  <!-- Sidebar -->
+  <aside class="w-72 bg-gray-100 border-r min-h-screen flex flex-col py-8 px-4">
+    <h2 class="text-xl font-bold mb-8 text-gray-700 text-center">Panel</h2>
+    <nav class="flex flex-col gap-2">
+      <button id="sidebar-pedidos-btn" class="sidebar-btn text-left px-4 py-2 rounded font-medium bg-black text-white hover:bg-gray-800 transition-colors">Pedidos</button>
+      <button id="sidebar-usuarios-btn" class="sidebar-btn text-left px-4 py-2 rounded font-medium text-black hover:bg-gray-200 transition-colors">Usuarios</button>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="relative h-[25vh] flex items-center justify-center bg-black overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2000"
+           class="absolute w-full h-full object-cover opacity-60" alt="Administración YOLIK">
+      <div class="relative text-center text-white px-4">
+        <h1 class="text-4xl font-black uppercase tracking-tighter">Panel de Administración</h1>
+        <p class="text-lg font-light tracking-[0.3em] mt-2 uppercase">Gestiona tu tienda YOLIK</p>
+      </div>
+    </header>
+
+    <main class="flex-1 flex flex-col md:flex-row gap-8 p-8">
+      <!-- Sidebar switch content -->
+      <section id="sidebar-content" class="w-full md:w-1/2 max-w-xl">
+        <!-- Pedidos (default) -->
+        <div id="pedidos-section">
+          <h2 class="text-2xl font-bold mb-4">Pedidos</h2>
+          <table class="min-w-full border text-sm mb-6">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="py-2 px-4 border">ID</th>
+                <th class="py-2 px-4 border">Cliente</th>
+                <th class="py-2 px-4 border">Fecha</th>
+                <th class="py-2 px-4 border">Total</th>
+                <th class="py-2 px-4 border">Estado</th>
+                <th class="py-2 px-4 border">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="py-2 px-4 border">001</td>
+                <td class="py-2 px-4 border">Juan Pérez</td>
+                <td class="py-2 px-4 border">2024-06-01</td>
+                <td class="py-2 px-4 border">$1,200.00</td>
+                <td class="py-2 px-4 border">Enviado</td>
+                <td class="py-2 px-4 border">
+                  <button class="text-blue-600 hover:underline mr-2">Ver</button>
+                  <button class="text-green-600 hover:underline">Marcar entregado</button>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 border">002</td>
+                <td class="py-2 px-4 border">Ana López</td>
+                <td class="py-2 px-4 border">2024-06-02</td>
+                <td class="py-2 px-4 border">$800.00</td>
+                <td class="py-2 px-4 border">Pendiente</td>
+                <td class="py-2 px-4 border">
+                  <button class="text-blue-600 hover:underline mr-2">Ver</button>
+                  <button class="text-green-600 hover:underline">Marcar enviado</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Usuarios (hidden by default) -->
+        <div id="usuarios-section" class="hidden">
+          <h2 class="text-2xl font-bold mb-4">Usuarios</h2>
+          <table class="min-w-full border text-sm mb-6">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="py-2 px-4 border">Nombre</th>
+                <th class="py-2 px-4 border">Correo</th>
+                <th class="py-2 px-4 border">Rol</th>
+                <th class="py-2 px-4 border">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="py-2 px-4 border">Juan Pérez</td>
+                <td class="py-2 px-4 border">juan@email.com</td>
+                <td class="py-2 px-4 border">Administrador</td>
+                <td class="py-2 px-4 border">
+                  <button class="text-blue-600 hover:underline mr-2">Editar</button>
+                  <button class="text-red-600 hover:underline">Eliminar</button>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 border">Ana López</td>
+                <td class="py-2 px-4 border">ana@email.com</td>
+                <td class="py-2 px-4 border">Vendedor</td>
+                <td class="py-2 px-4 border">
+                  <button class="text-blue-600 hover:underline mr-2">Editar</button>
+                  <button class="text-red-600 hover:underline">Eliminar</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Main stats and new product -->
+      <section class="flex-1 flex flex-col gap-8">
+        <!-- Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          <div class="bg-gray-50 rounded-lg p-6 border text-center">
+            <div class="text-3xl font-bold text-black mb-2">$12,500</div>
+            <div class="text-gray-600 text-sm uppercase">Ventas este mes</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-6 border text-center">
+            <div class="text-3xl font-bold text-black mb-2">34</div>
+            <div class="text-gray-600 text-sm uppercase">Pedidos</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-6 border text-center">
+            <div class="text-3xl font-bold text-black mb-2">8</div>
+            <div class="text-gray-600 text-sm uppercase">Productos bajos en stock</div>
+          </div>
+        </div>
+        <!-- Nuevo producto -->
+        <section id="nuevo-producto" class="bg-white rounded-lg border p-8 shadow">
+          <h2 class="text-2xl font-bold mb-6">Añadir nuevo producto</h2>
+          <form class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium mb-1">Nombre del producto</label>
+              <input type="text" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" placeholder="Ej. Blusa bordada">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Descripción</label>
+              <textarea class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" rows="3" placeholder="Describe el producto"></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">Precio (MXN)</label>
+                <input type="number" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Stock</label>
+                <input type="number" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" placeholder="Cantidad">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Categoría</label>
+                <select class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black">
+                  <option>Textil</option>
+                  <option>Accesorio</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Foto del producto</label>
+              <input type="file" class="w-full border rounded px-3 py-2 bg-white">
+            </div>
+            <button type="submit" class="mt-4 px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors font-bold">
+              Guardar producto
+            </button>
+          </form>
+        </section>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+  // Simple switch logic for sidebar
+  const pedidosBtn = document.getElementById('sidebar-pedidos-btn');
+  const usuariosBtn = document.getElementById('sidebar-usuarios-btn');
+  const pedidosSection = document.getElementById('pedidos-section');
+  const usuariosSection = document.getElementById('usuarios-section');
+
+  pedidosBtn.addEventListener('click', () => {
+    pedidosSection.classList.remove('hidden');
+    usuariosSection.classList.add('hidden');
+    pedidosBtn.classList.add('bg-black', 'text-white');
+    usuariosBtn.classList.remove('bg-black', 'text-white');
+    usuariosBtn.classList.add('text-black');
+  });
+
+  usuariosBtn.addEventListener('click', () => {
+    usuariosSection.classList.remove('hidden');
+    pedidosSection.classList.add('hidden');
+    usuariosBtn.classList.add('bg-black', 'text-white');
+    pedidosBtn.classList.remove('bg-black', 'text-white');
+    pedidosBtn.classList.add('text-black');
+  });
+</script>
