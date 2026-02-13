@@ -1,0 +1,50 @@
+/* Animaciones del carrito */
+app-navbar .translate-x-full {
+  transform: translateX(100%);
+}
+
+app-navbar .translate-x-0 {
+  transform: translateX(0);
+}
+
+/* Scroll suave en items del carrito */
+app-navbar .overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #D11C5E #f3f4f6;
+}
+
+app-navbar .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+app-navbar .overflow-y-auto::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+app-navbar .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #D11C5E;
+  border-radius: 3px;
+}
+
+app-navbar .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #b91750;
+}
+
+/* Animación del badge del carrito */
+app-navbar .absolute.bg-\[\#D11C5E\] {
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Hover effect en items del carrito */
+app-navbar .bg-gray-50:hover {
+  transform: translateX(-2px);
+}

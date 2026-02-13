@@ -1,0 +1,194 @@
+<!-- DETALLE PRODUCTO -->
+<div class="w-full min-h-screen bg-gray-50 pt-16">
+
+  <!-- Breadcrumb -->
+<div class="w-full bg-white border-b border-gray-200 py-2">
+  <div class="px-6 md:px-12">
+    <nav class="flex items-center gap-x-2 text-sm">
+      <a routerLink="/" class="text-gray-500 hover:text-[#D11C5E] transition-colors">Inicio</a>
+      <span class="text-gray-300">/</span>
+      <a routerLink="/tienda" class="text-gray-500 hover:text-[#D11C5E] transition-colors">Tienda</a>
+      <span class="text-gray-300">/</span>
+      <span class="text-gray-700 font-medium">{{ producto.nombre }}</span>
+    </nav>
+  </div>
+</div>
+
+  <!-- Contenedor principal -->
+  <div class="px-6 md:px-12 py-12">
+    <div class="grid md:grid-cols-2 gap-12 max-w-7xl mx-auto">
+
+      <!-- COLUMNA IZQUIERDA: Carrusel de imágenes -->
+      <div class="space-y-4">
+        <!-- Imagen principal -->
+        <div class="aspect-square bg-white rounded-lg overflow-hidden shadow-lg">
+          <img [src]="producto.imagenes[imagenActual]"
+               [alt]="producto.nombre"
+               class="w-full h-full object-cover">
+        </div>
+
+        <!-- Miniaturas -->
+        <div class="grid grid-cols-4 gap-3">
+          @for (imagen of producto.imagenes; track $index) {
+            <button (click)="cambiarImagen($index)"
+                    [class.ring-2]="imagenActual === $index"
+                    [class.ring-[#D11C5E]]="imagenActual === $index"
+                    class="aspect-square bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition-all cursor-pointer">
+              <img [src]="imagen"
+                   [alt]="producto.nombre"
+                   class="w-full h-full object-cover">
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- COLUMNA DERECHA: Información del producto -->
+      <div class="space-y-6">
+
+        <!-- Stock badge -->
+        <div>
+          @if (producto.stock > 0) {
+            <span class="inline-block px-4 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase">
+              En stock ({{ producto.stock }} disponibles)
+            </span>
+          } @else {
+            <span class="inline-block px-4 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full uppercase">
+              Agotado
+            </span>
+          }
+        </div>
+
+        <!-- Título -->
+        <div>
+          <h1 class="text-4xl font-black text-gray-900 mb-2">
+            {{ producto.nombre }}
+          </h1>
+          <p class="text-gray-500 text-sm">
+            {{ producto.categoria }}
+          </p>
+        </div>
+
+        <!-- Precio -->
+        <div class="border-y border-gray-200 py-6">
+          @if (producto.precioOriginal && producto.precioOriginal > producto.precio) {
+            <div class="flex items-center gap-3">
+              <span class="text-4xl font-black text-[#D11C5E]">${{ producto.precio }}</span>
+              <span class="text-xl text-gray-400 line-through">${{ producto.precioOriginal }}</span>
+              <span class="px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full">
+                -{{ calcularDescuento() }}%
+              </span>
+            </div>
+          } @else {
+            <span class="text-4xl font-black text-[#D11C5E]">${{ producto.precio }}</span>
+          }
+          <span class="text-gray-500 text-sm ml-2">MXN</span>
+        </div>
+
+        <!-- Descripción -->
+        <div>
+          <h3 class="text-lg font-bold mb-3">Descripción</h3>
+          <p class="text-gray-700 leading-relaxed">
+            {{ producto.descripcion }}
+          </p>
+        </div>
+
+        <!-- Características -->
+        @if (producto.caracteristicas.length > 0) {
+          <div>
+            <h3 class="text-lg font-bold mb-3">Características</h3>
+            <ul class="space-y-2">
+              @for (caracteristica of producto.caracteristicas; track $index) {
+                <li class="flex items-start gap-2 text-gray-700">
+                  <i class="fa-solid fa-check text-[#D11C5E] mt-1"></i>
+                  <span>{{ caracteristica }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        <!-- Selector de cantidad -->
+        <div>
+          <h3 class="text-lg font-bold mb-3">Cantidad</h3>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+              <button (click)="decrementarCantidad()"
+                      [disabled]="cantidad <= 1"
+                      class="px-4 py-3 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <i class="fa-solid fa-minus text-sm"></i>
+              </button>
+              <span class="px-6 py-3 font-bold text-lg">{{ cantidad }}</span>
+              <button (click)="incrementarCantidad()"
+                      [disabled]="cantidad >= producto.stock"
+                      class="px-4 py-3 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <i class="fa-solid fa-plus text-sm"></i>
+              </button>
+            </div>
+            <span class="text-sm text-gray-500">
+              Máximo: {{ producto.stock }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="space-y-3 pt-4">
+          <button (click)="agregarAlCarrito()"
+                  [disabled]="producto.stock === 0"
+                  class="w-full py-4 bg-[#D11C5E] text-white font-bold text-base uppercase tracking-wide rounded-lg hover:bg-[#b91750] disabled:bg-gray-300 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3">
+            <i class="fa-solid fa-bag-shopping text-xl"></i>
+            @if (producto.stock > 0) {
+              <span>Agregar al carrito</span>
+            } @else {
+              <span>Producto agotado</span>
+            }
+          </button>
+
+          <button routerLink="/tienda"
+                  class="w-full py-4 bg-gray-200 text-gray-700 font-bold text-base uppercase tracking-wide rounded-lg hover:bg-gray-300 transition-colors">
+            Volver a la tienda
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Productos relacionados (opcional) -->
+    <div class="mt-20 max-w-7xl mx-auto">
+      <h2 class="text-3xl font-black mb-8">Productos relacionados</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        @for (productoRel of productosRelacionados; track productoRel.id) {
+          <article class="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
+                   (click)="verProducto(productoRel.id)">
+            <div class="relative aspect-[3/4] overflow-hidden bg-gray-100">
+              <img [src]="productoRel.imagen"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                   [alt]="productoRel.nombre">
+
+              <div class="absolute top-3 right-3">
+                <span class="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full">
+                  En stock
+                </span>
+              </div>
+            </div>
+
+            <div class="p-4">
+              <h3 class="font-bold text-base mb-1 line-clamp-2 group-hover:text-[#D11C5E] transition-colors">
+                {{ productoRel.nombre }}
+              </h3>
+              <p class="text-xs text-gray-500 mb-3">{{ productoRel.categoria }}</p>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-xl font-black text-[#D11C5E]">${{ productoRel.precio }}</span>
+                  <span class="text-xs text-gray-500 ml-1">MXN</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

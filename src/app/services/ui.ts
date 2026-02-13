@@ -11,15 +11,14 @@ export interface NavItem {
 @Injectable({ providedIn: 'root' })
 export class UiService {
   visible = signal(true);
-  isLoggedIn = signal(false);
+  isLoggedIn = signal(true);
   userName = signal('Usuario YOLIK');
 
   // Secciones de navegación
   readonly menuItems: NavItem[] = [
     { id: 'blog', label: 'Blog', path: '/', visible: signal(true), exact: true },
     { id: 'tienda', label: 'Tienda', path: '/tienda', visible: signal(true) },
-    { id: 'prueba1', label: 'Prueba 1', path: '/prueba1', visible: signal(true) },
-    { id: 'prueba2', label: 'Prueba 2', path: '/prueba2', visible: signal(true) },
+    { id: 'administracion', label: 'Administración', path: '/administracion', visible: signal(true) },
   ];
 
   // Herramientas (Signals individuales para evitar el error 'sections')

@@ -1,61 +1,131 @@
-<!-- Mockup Tienda YOLIK - Solo ropa típica -->
-<div class="bg-white min-h-screen">
-  <header class="relative h-[50vh] flex items-center justify-center bg-black overflow-hidden">
-    <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=2000"
-         class="absolute w-full h-full object-cover opacity-60" alt="Tienda YOLIK">
-    <div class="relative text-center text-white px-4">
-      <h1 class="text-6xl font-black uppercase tracking-tighter">Tienda YOLIK</h1>
-      <p class="text-lg font-light tracking-[0.3em] mt-2 uppercase">Ropa típica de Tehuacán, Puebla</p>
+<!-- TIENDA YOLIK - E-commerce Style -->
+
+<!-- HEADER DE LA TIENDA -->
+<section class="w-full h-[40vh] relative overflow-hidden bg-gradient-to-r from-[#D11C5E] to-[#E63E6D]">
+  <div class="absolute inset-0 bg-black/20"></div>
+  <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=2000"
+       class="absolute w-full h-full object-cover opacity-40 mix-blend-overlay"
+       alt="Tienda YOLIK">
+
+  <div class="relative z-10 flex flex-col items-center justify-center h-full text-white px-4">
+    <h1 class="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4">
+      Compra YOLIK
+    </h1>
+    <p class="text-lg md:text-xl font-light tracking-widest uppercase">
+      Moda Tradicional de Tehuacán
+    </p>
+  </div>
+</section>
+
+<!-- FILTRO DE ORDENAR -->
+<section class="w-full bg-white border-b border-gray-200 shadow-sm">
+  <div class="px-6 md:px-12 py-4 flex flex-wrap items-center justify-between gap-4">
+
+    <!-- Contador de productos -->
+    <div>
+      <p class="text-gray-600 text-sm">
+        Mostrando <span class="font-bold text-black">12</span> productos
+      </p>
     </div>
-  </header>
 
-  <main class="max-w-7xl mx-auto py-16 px-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <!-- Ordenar -->
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-gray-600 font-medium">Ordenar:</span>
+      <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+        <option>Más reciente</option>
+        <option>Precio: menor a mayor</option>
+        <option>Precio: mayor a menor</option>
+        <option>Más populares</option>
+      </select>
+    </div>
+  </div>
+</section>
 
-      <!-- Producto 1: Rebozo -->
-      <article class="group border-none shadow-none overflow-hidden bg-white rounded-lg">
-        <div class="overflow-hidden aspect-video rounded-t-lg">
-          <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?q=80&w=800"
-               class="group-hover:scale-105 transition-transform duration-500 w-full h-full object-cover" alt="Rebozo Tehuacán">
-        </div>
-        <div class="py-4 px-6">
-          <span class="inline-block bg-black text-white rounded-none text-[10px] uppercase mb-4 px-2 py-1">Textil</span>
-          <h2 class="text-3xl font-bold tracking-tight mb-2 group-hover:underline cursor-pointer">
-            Rebozo Tehuacán
-          </h2>
-          <p class="text-gray-500 font-light mb-6">Rebozo de algodón tejido en telar de cintura, colores tradicionales de la región.</p>
-          <div class="flex items-center mb-4">
-            <span class="text-xl font-bold text-black mr-2">$480 MXN</span>
-          </div>
-          <button class="p-0 text-black bg-transparent border border-black rounded hover:translate-x-2 transition-transform flex items-center gap-2">
-            Comprar
-            <span class="pi pi-shopping-cart"></span>
-          </button>
-        </div>
-      </article>
+<!-- PRODUCTOS GRID -->
+<section class="w-full bg-gray-50 py-12">
+  <div class="px-6 md:px-12">
 
-      <!-- Producto 2: Blusa bordada -->
-      <article class="group border-none shadow-none overflow-hidden bg-white rounded-lg">
-        <div class="overflow-hidden aspect-video rounded-t-lg">
-          <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800"
-               class="group-hover:scale-105 transition-transform duration-500 w-full h-full object-cover" alt="Blusa bordada">
-        </div>
-        <div class="py-4 px-6">
-          <span class="inline-block bg-black text-white rounded-none text-[10px] uppercase mb-4 px-2 py-1">Textil</span>
-          <h2 class="text-3xl font-bold tracking-tight mb-2 group-hover:underline cursor-pointer">
-            Blusa Bordada
-          </h2>
-          <p class="text-gray-500 font-light mb-6">Blusa típica de Tehuacán, bordada a mano con motivos florales.</p>
-          <div class="flex items-center mb-4">
-            <span class="text-xl font-bold text-black mr-2">$350 MXN</span>
-          </div>
-          <button class="p-0 text-black bg-transparent border border-black rounded hover:translate-x-2 transition-transform flex items-center gap-2">
-            Comprar
-            <span class="pi pi-shopping-cart"></span>
-          </button>
-        </div>
-      </article>
+    <!-- Grid de productos -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+      @for (item of productos; track item.id) {
+        <a [routerLink]="['/detalle-producto', item.id]" class="block h-full">
+          <article class="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col">
+            <!-- Imagen -->
+            <div class="relative aspect-[3/4] overflow-hidden bg-gray-100">
+              <img [src]="item.imagen"
+                   [alt]="item.nombre"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+
+              <!-- Badges Dinámicos -->
+              @for (badge of item.badges; track $index) {
+                <div [class]="'absolute top-3 ' + (badge.position === 'left' ? 'left-3' : 'right-3')">
+                  <span [class]="'px-3 py-1 text-white text-xs font-bold rounded-full ' + badge.color">
+                    {{ badge.text }}
+                  </span>
+                </div>
+              }
+
+              <!-- Overlay Agotado -->
+              @if (item.agotado) {
+                <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <span class="text-white font-bold text-lg uppercase">Agotado</span>
+                </div>
+              }
+            </div>
+
+            <!-- Info del producto -->
+            <div class="p-4 flex flex-col flex-1" [class.opacity-60]="item.agotado">
+              <h3 class="font-bold text-base mb-1 line-clamp-2 text-[#D11C5E]">
+                {{ item.nombre }}
+              </h3>
+              <p class="text-xs text-gray-500 mb-3">{{ item.descripcion }}</p>
+
+              <div class="mt-auto flex items-center justify-between">
+                <div class="flex flex-col">
+                  @if (item.precioOriginal) {
+                    <span class="text-xs text-gray-400 line-through">${{ item.precioOriginal }}</span>
+                  }
+                  <div>
+                    <span class="text-xl font-black text-[#D11C5E]">${{ item.precio }}</span>
+                    <span class="text-xs text-gray-500 ml-1">MXN</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </a>
+      }
 
     </div>
-  </main>
-</div>
+
+    <!-- PAGINACIÓN -->
+    <div class="mt-12 flex items-center justify-center gap-2">
+      <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700">
+        Anterior
+      </button>
+      <button class="px-4 py-2 bg-[#D11C5E] text-white rounded-lg text-sm font-bold">
+        1
+      </button>
+      <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700">
+        2
+      </button>
+      <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700">
+        3
+      </button>
+      <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700">
+        Siguiente
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="w-full py-8 bg-white border-t border-gray-200">
+  <div class="px-6 text-center">
+    <p class="text-gray-600 text-sm">
+      © 2024 YOLIK · Moda Tradicional de Tehuacán, Puebla
+    </p>
+  </div>
+</footer>

@@ -26,7 +26,7 @@ export class Blog implements OnInit, OnDestroy {
 
     // Apagamos las herramientas que no queremos en el blog
     this.ui.searchVisible.set(false);
-    this.ui.cartVisible.set(true);
+    this.ui.cartVisible.set(false);
   }
 
   ngOnDestroy() {

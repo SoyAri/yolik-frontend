@@ -1,0 +1,64 @@
+/* Line clamp para textos */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Animación de entrada */
+app-detalle-producto > div {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Transición suave de imágenes */
+app-detalle-producto img {
+  transition: all 0.3s ease;
+}
+
+/* Hover en miniaturas */
+app-detalle-producto button img:hover {
+  transform: scale(1.05);
+}
+
+/* Botones deshabilitados */
+app-detalle-producto button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Scroll suave */
+app-detalle-producto {
+  scroll-behavior: smooth;
+}
+
+/* Animación del botón principal */
+app-detalle-producto .bg-\[\#D11C5E\]:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+app-detalle-producto .bg-\[\#D11C5E\]:not(:disabled):active {
+  transform: translateY(0);
+}
+
+/* Responsive para móvil */
+@media (max-width: 768px) {
+  app-detalle-producto h1 {
+    font-size: 2rem !important;
+  }
+
+  app-detalle-producto .text-4xl {
+    font-size: 2rem !important;
+  }
+}
