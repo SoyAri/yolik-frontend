@@ -1,0 +1,156 @@
+/* ============================================
+   ESTILOS CARRITO YOLIK
+   ============================================ */
+
+/* Animaciones de entrada */
+app-carrito > section > div > div > div > div {
+  animation: fadeInUp 0.4s ease-out backwards;
+}
+
+app-carrito > section > div > div > div > div:nth-child(1) { animation-delay: 0.1s; }
+app-carrito > section > div > div > div > div:nth-child(2) { animation-delay: 0.2s; }
+app-carrito > section > div > div > div > div:nth-child(3) { animation-delay: 0.3s; }
+app-carrito > section > div > div > div > div:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth scroll */
+app-carrito {
+  scroll-behavior: smooth;
+}
+
+/* Mejorar inputs */
+app-carrito input[type="text"] {
+  transition: all 0.3s ease;
+}
+
+app-carrito input[type="text"]:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(209, 28, 94, 0.15);
+}
+
+/* Hover effects en botones */
+app-carrito button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+app-carrito button:active {
+  transform: scale(0.98);
+}
+
+/* Animación del carrito vacío */
+app-carrito .fa-bag-shopping {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Efecto de pulsación en el badge de cantidad */
+app-carrito .text-\[#D11C5E\] {
+  transition: all 0.2s ease;
+}
+
+/* Sombra suave en las tarjetas de productos */
+app-carrito .bg-white {
+  transition: box-shadow 0.3s ease;
+}
+
+/* Sticky sidebar mejorado */
+app-carrito .sticky {
+  transition: all 0.3s ease;
+}
+
+/* Responsive mejoras */
+@media (max-width: 768px) {
+  app-carrito h1 {
+    font-size: 2.5rem !important;
+  }
+
+  app-carrito .text-2xl {
+    font-size: 1.5rem !important;
+  }
+
+  app-carrito .sticky {
+    position: relative !important;
+    top: 0 !important;
+  }
+}
+
+/* Animación para el descuento aplicado */
+@keyframes successPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+app-carrito .bg-green-50 {
+  animation: successPulse 0.4s ease-out;
+}
+
+/* Mejora del hover en imágenes de productos */
+app-carrito img {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Efecto de progreso para envío gratis */
+app-carrito .bg-yellow-50 {
+  position: relative;
+  overflow: hidden;
+}
+
+app-carrito .bg-yellow-50::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Iconos de métodos de pago */
+app-carrito .fa-brands,
+app-carrito .fa-credit-card {
+  transition: all 0.3s ease;
+  filter: grayscale(100%);
+}
+
+app-carrito .fa-brands:hover,
+app-carrito .fa-credit-card:hover {
+  filter: grayscale(0%);
+  transform: scale(1.1);
+}

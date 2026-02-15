@@ -5,6 +5,7 @@ import { Blog } from './components/blog/blog';
 import { Tienda } from './components/tienda/tienda';
 import { Administracion } from './components/administracion/administracion';
 import { DetalleProducto } from './components/detalle-producto/detalle-producto';
+import { Carrito } from './components/carrito/carrito';
 
 export const routes: Routes = [
   // ruta por defecto cuando el path esté vacio
@@ -17,6 +18,8 @@ export const routes: Routes = [
   { path: 'tienda', component: Tienda },
 
   { path: 'detalle-producto/:id', component: DetalleProducto },
+
+  { path: 'carrito', component: Carrito },
 
   { path: 'administracion', component: Administracion },
 

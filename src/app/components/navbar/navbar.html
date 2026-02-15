@@ -133,9 +133,9 @@
 
       <!-- Botones -->
       <div class="space-y-2">
-        <button class="w-full py-3 bg-[#D11C5E] text-white font-bold text-sm uppercase tracking-wide rounded-lg hover:bg-[#b91750] transition-colors">
+        <a routerLink="/carrito" (click)="toggleCart()" class="block w-full py-3 bg-[#D11C5E] text-white font-bold text-sm uppercase tracking-wide rounded-lg hover:bg-[#b91750] transition-colors text-center">
           Finalizar Compra
-        </button>
+        </a>
         <button (click)="toggleCart()" class="w-full py-3 bg-gray-200 text-gray-700 font-bold text-sm uppercase tracking-wide rounded-lg hover:bg-gray-300 transition-colors">
           Seguir Comprando
         </button>
