@@ -1,0 +1,134 @@
+/* ============================================
+   ESTILOS PANEL ADMINISTRACIÓN YOLIK
+   ============================================ */
+
+/* Animación de entrada */
+app-administracion main > div {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animación de cards de stats */
+app-administracion .grid > div {
+  animation: slideUp 0.5s ease-out backwards;
+}
+
+app-administracion .grid > div:nth-child(1) { animation-delay: 0.1s; }
+app-administracion .grid > div:nth-child(2) { animation-delay: 0.2s; }
+app-administracion .grid > div:nth-child(3) { animation-delay: 0.3s; }
+app-administracion .grid > div:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover en filas de tabla */
+app-administracion tbody tr {
+  transition: all 0.2s ease;
+}
+
+app-administracion tbody tr:hover {
+  background-color: #fafafa;
+}
+
+/* Botones de switch */
+app-administracion header button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Select de estado */
+app-administracion select {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+app-administracion select:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth scroll */
+app-administracion {
+  scroll-behavior: smooth;
+}
+
+/* Badges de estado */
+app-administracion .bg-yellow-100 {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Inputs y filtros */
+app-administracion input,
+app-administracion select {
+  transition: all 0.2s ease;
+}
+
+app-administracion input:focus,
+app-administracion select:focus {
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  app-administracion h1 {
+    font-size: 1.5rem !important;
+  }
+
+  app-administracion .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Scrollbar personalizado para tablas */
+app-administracion .overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+app-administracion .overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+app-administracion .overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #D11C5E;
+  border-radius: 4px;
+}
+
+app-administracion .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #E63E6D;
+}
+
+/* Loading states */
+app-administracion button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Transiciones suaves */
+app-administracion * {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

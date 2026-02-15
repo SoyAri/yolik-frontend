@@ -1,0 +1,132 @@
+/* ============================================
+   ESTILOS LOGIN YOLIK
+   ============================================ */
+
+/* Animación de entrada del formulario */
+app-login section > div {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efecto focus en inputs */
+app-login input:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(209, 28, 94, 0.15);
+}
+
+/* Animación del botón de submit */
+app-login button[type="submit"] {
+  position: relative;
+  overflow: hidden;
+}
+
+app-login button[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+app-login button[type="submit"]:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Animación suave del spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Error message con animación */
+app-login .bg-red-50 {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+/* Botones sociales hover */
+app-login button[type="button"] {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+app-login button[type="button"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Checkbox personalizado */
+app-login input[type="checkbox"] {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+app-login input[type="checkbox"]:checked {
+  background-color: #D11C5E;
+  border-color: #D11C5E;
+}
+
+/* Links hover */
+app-login a {
+  transition: all 0.2s ease;
+}
+
+/* Header parallax effect */
+app-login section:first-child img {
+  transition: transform 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  app-login h1 {
+    font-size: 2.5rem !important;
+  }
+
+  app-login section > div > div {
+    padding: 1.5rem !important;
+  }
+}
+
+/* Loading state */
+app-login button:disabled {
+  cursor: not-allowed;
+}
+
+/* Smooth transitions */
+app-login * {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

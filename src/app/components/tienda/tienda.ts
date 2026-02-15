@@ -49,7 +49,7 @@ export class Tienda implements OnInit {
     },
     {
       id: 3,
-      nombre: 'Vestido Tehuacán Flores',
+      nombre: 'Vestido Chilac Flores',
       precio: 890,
       descripcion: 'Bordado artesanal',
       imagen: 'https://images.unsplash.com/photo-1606103920295-9a091573f160?q=80&w=800',
@@ -65,7 +65,7 @@ export class Tienda implements OnInit {
     },
     {
       id: 5,
-      nombre: 'Falda Bordada Tehuacán',
+      nombre: 'Falda Bordada Chilac',
       precio: 650,
       descripcion: 'Edición limitada',
       imagen: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=800',

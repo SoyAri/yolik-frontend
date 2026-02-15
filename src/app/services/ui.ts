@@ -16,7 +16,7 @@ export class UiService {
 
   // Secciones de navegación
   readonly menuItems: NavItem[] = [
-    { id: 'blog', label: 'Blog', path: '/', visible: signal(true), exact: true },
+    { id: 'blog', label: 'Sobre nosotros', path: '/', visible: signal(true), exact: true },
     { id: 'tienda', label: 'Tienda', path: '/tienda', visible: signal(true) },
     { id: 'administracion', label: 'Administración', path: '/administracion', visible: signal(true) },
   ];

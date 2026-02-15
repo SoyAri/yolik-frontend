@@ -16,7 +16,7 @@ export class Blog implements OnInit, OnDestroy {
   ui = inject(UiService);
 
   posts = [
-    { id: 1, titulo: 'Bordados Tradicionales', extracto: 'La esencia de Tehuacán...', img: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=800', tag: 'Cultura' },
+    { id: 1, titulo: 'Bordados Tradicionales', extracto: 'La esencia de Chilac...', img: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=800', tag: 'Cultura' },
     { id: 2, titulo: 'Moda Artesanal', extracto: 'Tradición y modernidad.', img: 'https://images.unsplash.com/photo-1606103920295-9a091573f160?q=80&w=800', tag: 'Tendencias' }
   ];
 
@@ -26,7 +26,7 @@ export class Blog implements OnInit, OnDestroy {
 
     // Apagamos las herramientas que no queremos en el blog
     this.ui.searchVisible.set(false);
-    this.ui.cartVisible.set(false);
+    this.ui.cartVisible.set(true);
   }
 
   ngOnDestroy() {

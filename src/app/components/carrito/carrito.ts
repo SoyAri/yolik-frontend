@@ -15,6 +15,17 @@ interface CartItem {
   color?: string;
 }
 
+interface ShippingData {
+  nombre: string;
+  telefono: string;
+  calle: string;
+  colonia: string;
+  ciudad: string;
+  codigoPostal: string;
+  estado: string;
+  referencias: string;
+}
+
 @Component({
   selector: 'app-carrito',
   standalone: true,
@@ -25,8 +36,19 @@ interface CartItem {
 export class Carrito implements OnInit {
   ui = inject(UiService);
 
-  // TODO: Estos datos vendrán del backend / servicio compartido
-  // Por ahora usamos mock data
+  // Datos de envío
+  shippingData: ShippingData = {
+    nombre: '',
+    telefono: '',
+    calle: '',
+    colonia: '',
+    ciudad: '',
+    codigoPostal: '',
+    estado: '',
+    referencias: ''
+  };
+
+  // Carrito (mock data)
   cartItems: CartItem[] = [
     {
       id: 1,
@@ -50,7 +72,7 @@ export class Carrito implements OnInit {
     },
     {
       id: 3,
-      name: 'Vestido Tehuacán Flores',
+      name: 'Vestido Chilac Flores',
       description: 'Bordado artesanal premium',
       price: 890,
       quantity: 1,
@@ -60,22 +82,17 @@ export class Carrito implements OnInit {
     }
   ];
 
-  // Código de descuento (futuro backend)
   discountCode = '';
   discountApplied = false;
   discountAmount = 0;
-
-  // Costos de envío (mock - vendrá del backend)
   shippingCost = 120;
   freeShippingThreshold = 1500;
 
   ngOnInit() {
-    // Configurar UI
     this.ui.cartVisible.set(false);
     this.ui.searchVisible.set(false);
   }
 
-  // Computed properties
   get subtotal(): number {
     return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   }
@@ -92,13 +109,11 @@ export class Carrito implements OnInit {
     return this.cartItems.reduce((total, item) => total + item.quantity, 0);
   }
 
-  // Métodos del carrito
   updateQuantity(itemId: number, newQuantity: number) {
     if (newQuantity < 1) {
       this.removeItem(itemId);
       return;
     }
-
     const item = this.cartItems.find(i => i.id === itemId);
     if (item) {
       item.quantity = newQuantity;
@@ -109,11 +124,10 @@ export class Carrito implements OnInit {
     this.cartItems = this.cartItems.filter(item => item.id !== itemId);
   }
 
-  // TODO: Aplicar cupón (backend)
   applyDiscount() {
     if (this.discountCode.toLowerCase() === 'yolik2026') {
       this.discountApplied = true;
-      this.discountAmount = this.subtotal * 0.1; // 10% descuento
+      this.discountAmount = this.subtotal * 0.1;
     }
   }
 
@@ -123,17 +137,31 @@ export class Carrito implements OnInit {
     this.discountCode = '';
   }
 
-  // TODO: Procesar compra (backend)
   proceedToCheckout() {
-    console.log('Procediendo al pago...', {
+    const pedido = {
       items: this.cartItems,
+      shippingData: this.shippingData,
       subtotal: this.subtotal,
       shipping: this.shipping,
       discount: this.discountAmount,
-      total: this.total
-    });
-    // Aquí irá la navegación a la página de checkout
-    alert('¡Función de pago en desarrollo! 🛍️');
+      total: this.total,
+      fecha: new Date()
+    };
+
+    console.log('Procesando pedido:', pedido);
+
+    // CONECTAR CON BACKEND
+    // this.pedidosService.crear(pedido).subscribe({
+    //   next: (response) => {
+    //     this.router.navigate(['/pago', response.pedidoId]);
+    //   },
+    //   error: (err) => {
+    //     console.error('Error:', err);
+    //     alert('Error al procesar el pedido');
+    //   }
+    // });
+
+    alert('¡Pedido procesado!\n\nEnvío a: ' + this.shippingData.calle + ', ' + this.shippingData.ciudad + '\nTotal: $' + this.total);
   }
 
   clearCart() {

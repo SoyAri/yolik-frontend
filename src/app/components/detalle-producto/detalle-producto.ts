@@ -41,7 +41,7 @@ export class DetalleProducto implements OnInit {
     id: 1,
     nombre: 'Blusa Bordada Rosa Mexicano',
     categoria: 'Blusas Tradicionales',
-    descripcion: 'Hermosa blusa tradicional de Tehuacán, Puebla, elaborada 100% a mano por artesanas locales. Cada bordado cuenta una historia de nuestra cultura y tradición. Confeccionada en manta de algodón suave y transpirable, perfecta para cualquier ocasión. Los motivos florales en tonos rosa mexicano representan la primavera y la alegría de nuestra tierra.',
+    descripcion: 'Hermosa blusa tradicional de Chilac, Puebla, elaborada 100% a mano por artesanas locales. Cada bordado cuenta una historia de nuestra cultura y tradición. Confeccionada en manta de algodón suave y transpirable, perfecta para cualquier ocasión. Los motivos florales en tonos rosa mexicano representan la primavera y la alegría de nuestra tierra.',
     precio: 450,
     precioOriginal: 550,
     stock: 8,
@@ -53,7 +53,7 @@ export class DetalleProducto implements OnInit {
     ],
     caracteristicas: [
       '100% algodón natural',
-      'Bordado a mano por artesanas de Tehuacán',
+      'Bordado a mano por artesanas de Chilac',
       'Diseño único y exclusivo',
       'Tallas disponibles: S, M, L, XL',
       'Cuidado: Lavar a mano en agua fría',
@@ -72,7 +72,7 @@ export class DetalleProducto implements OnInit {
     },
     {
       id: 3,
-      nombre: 'Vestido Tehuacán Flores',
+      nombre: 'Vestido Chilac Flores',
       categoria: 'Vestidos',
       precio: 890,
       imagen: 'https://images.unsplash.com/photo-1606103920295-9a091573f160?q=80&w=800'
