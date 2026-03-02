@@ -1,12 +1,9 @@
-<!-- TIENDA YOLIK - E-commerce Style -->
-
 <!-- HEADER DE LA TIENDA -->
 <section class="w-full h-[40vh] relative overflow-hidden bg-gradient-to-r from-[#D11C5E] to-[#E63E6D]">
   <div class="absolute inset-0 bg-black/20"></div>
   <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=2000"
        class="absolute w-full h-full object-cover opacity-40 mix-blend-overlay"
        alt="Tienda YOLIK">
-
   <div class="relative z-10 flex flex-col items-center justify-center h-full text-white px-4">
     <h1 class="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4">
       Compra YOLIK
@@ -17,25 +14,37 @@
   </div>
 </section>
 
-<!-- FILTRO DE ORDENAR -->
-<section class="w-full bg-white border-b border-gray-200 shadow-sm">
+<!-- FILTROS -->
+<section class="w-full bg-white border-b border-gray-200 shadow-sm sticky top-16 z-10">
   <div class="px-6 md:px-12 py-4 flex flex-wrap items-center justify-between gap-4">
 
-    <!-- Contador de productos -->
-    <div>
+    <!-- Total y filtros activos -->
+    <div class="flex items-center gap-4">
       <p class="text-gray-600 text-sm">
-        Mostrando <span class="font-bold text-black">12</span> productos
+        <span class="font-bold text-black">{{ totalProductos }}</span> productos
       </p>
+
+      <!-- Filtros de categoria -->
+      <div class="hidden md:flex items-center gap-2">
+        @for (cat of categorias; track cat) {
+          <button (click)="filtrarCategoria(cat)"
+                  [class]="categoriaSeleccionada === cat
+                    ? 'px-3 py-1 bg-[#D11C5E] text-white text-xs font-bold rounded-full transition-colors'
+                    : 'px-3 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full hover:bg-gray-200 transition-colors'">
+            {{ cat }}
+          </button>
+        }
+      </div>
     </div>
 
-    <!-- Ordenar -->
-    <div class="flex items-center gap-2">
-      <span class="text-sm text-gray-600 font-medium">Ordenar:</span>
-      <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
-        <option>Más reciente</option>
-        <option>Precio: menor a mayor</option>
-        <option>Precio: mayor a menor</option>
-        <option>Más populares</option>
+    <!-- Buscador y region -->
+    <div class="flex items-center gap-3">
+      <select [(ngModel)]="regionSeleccionada" (change)="filtrarRegion(regionSeleccionada)"
+              class="px-3 py-2 border border-gray-300 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+        <option value="">Todas las regiones</option>
+        @for (region of regiones; track region) {
+          <option [value]="region">{{ region }}</option>
+        }
       </select>
     </div>
   </div>
@@ -45,78 +54,158 @@
 <section class="w-full bg-gray-50 py-12">
   <div class="px-6 md:px-12">
 
+    <!-- Estado de carga -->
+    @if (cargando) {
+      <div class="flex flex-col items-center justify-center py-24 gap-4">
+        <div class="w-12 h-12 border-4 border-[#D11C5E] border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-gray-500 text-sm font-medium">Cargando productos...</p>
+      </div>
+    }
+
+    <!-- Estado de error -->
+    @if (error && !cargando) {
+      <div class="flex flex-col items-center justify-center py-24 gap-4">
+        <i class="fa-solid fa-triangle-exclamation text-5xl text-red-400"></i>
+        <p class="text-gray-600 font-medium">{{ error }}</p>
+        <button (click)="cargarProductos()"
+                class="px-6 py-2 bg-[#D11C5E] text-white font-bold rounded-lg hover:bg-[#b91750] transition-colors">
+          Reintentar
+        </button>
+      </div>
+    }
+
+      <!-- Sin productos -->
+  @if (!cargando && !error && productos.length === 0) {
+    <div class="flex flex-col items-center justify-center py-24 gap-4">
+      <i class="fa-solid fa-bag-shopping text-5xl text-gray-300"></i>
+      <p class="text-gray-500 font-medium">No se encontraron productos</p>
+
+      <!-- Mostrar el botón solo si hay filtros activos -->
+      @if (categoriaSeleccionada || regionSeleccionada || busqueda) {
+        <button (click)="categoriaSeleccionada = ''; regionSeleccionada = ''; busqueda = ''; cargarProductos()"
+                class="px-6 py-2 bg-[#D11C5E] text-white font-bold rounded-lg hover:bg-[#b91750] transition-colors">
+          Ver todos los productos
+        </button>
+      }
+    </div>
+  }
+
     <!-- Grid de productos -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
-      @for (item of productos; track item.id) {
-        <a [routerLink]="['/detalle-producto', item.id]" class="block h-full">
+    @if (!cargando && !error && productos.length > 0) {
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @for (item of productos; track item._id) {
           <article class="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col">
-            <!-- Imagen -->
-            <div class="relative aspect-[3/4] overflow-hidden bg-gray-100">
-              <img [src]="item.imagen"
-                   [alt]="item.nombre"
-                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
 
-              <!-- Badges Dinámicos -->
-              @for (badge of item.badges; track $index) {
-                <div [class]="'absolute top-3 ' + (badge.position === 'left' ? 'left-3' : 'right-3')">
-                  <span [class]="'px-3 py-1 text-white text-xs font-bold rounded-full ' + badge.color">
-                    {{ badge.text }}
+            <!-- Imagen con link al detalle -->
+            <a [routerLink]="['/detalle-producto', item._id]" class="block relative aspect-[3/4] overflow-hidden bg-gray-100">
+                @if (getImagenPrincipal(item)) {
+              <img [src]="getImagenPrincipal(item)"
+                  [alt]="item.name"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            } @else {
+              <div class="w-full h-full flex flex-col items-center justify-center gap-2 bg-gray-100">
+                <i class="fa-solid fa-image text-4xl text-gray-300"></i>
+                <span class="text-xs text-gray-400 font-medium">Sin imagen</span>
+              </div>
+            }
+
+              <!-- Badge stock -->
+              <div class="absolute top-3 right-3">
+                <span [class]="'px-3 py-1 text-white text-xs font-bold rounded-full ' + getBadgeColor(item)">
+                  {{ getBadgeText(item) }}
+                </span>
+              </div>
+
+              <!-- Badge descuento -->
+              @if (item.discount && item.discount > 0) {
+                <div class="absolute top-3 left-3">
+                  <span class="px-3 py-1 text-white text-xs font-bold rounded-full bg-orange-500">
+                    -{{ item.discount }}%
                   </span>
                 </div>
               }
 
+              <!-- Badge categoria -->
+              <div class="absolute bottom-3 left-3">
+                <span class="px-3 py-1 text-white text-xs font-bold rounded-full bg-black/50">
+                  {{ item.category }}
+                </span>
+              </div>
+
               <!-- Overlay Agotado -->
-              @if (item.agotado) {
+              @if (item.stockStatus === 'Sin existencias') {
                 <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <span class="text-white font-bold text-lg uppercase">Agotado</span>
                 </div>
               }
-            </div>
+            </a>
 
             <!-- Info del producto -->
-            <div class="p-4 flex flex-col flex-1" [class.opacity-60]="item.agotado">
-              <h3 class="font-bold text-base mb-1 line-clamp-2 text-[#D11C5E]">
-                {{ item.nombre }}
-              </h3>
-              <p class="text-xs text-gray-500 mb-3">{{ item.descripcion }}</p>
+            <div class="p-4 flex flex-col flex-1" [class.opacity-60]="item.stockStatus === 'Sin existencias'">
+              <a [routerLink]="['/detalle-producto', item._id]">
+                <h3 class="font-bold text-base mb-1 line-clamp-2 text-[#D11C5E]">
+                  {{ item.name }}
+                </h3>
+                <p class="text-xs text-gray-500 mb-3 line-clamp-2">{{ item.description }}</p>
+              </a>
 
-              <div class="mt-auto flex items-center justify-between">
+              <div class="mt-auto flex items-center justify-between gap-2">
                 <div class="flex flex-col">
-                  @if (item.precioOriginal) {
-                    <span class="text-xs text-gray-400 line-through">${{ item.precioOriginal }}</span>
+                  @if (item.originalPrice) {
+                    <span class="text-xs text-gray-400 line-through">${{ item.originalPrice }}</span>
                   }
                   <div>
-                    <span class="text-xl font-black text-[#D11C5E]">${{ item.precio }}</span>
+                    <span class="text-xl font-black text-[#D11C5E]">${{ item.price }}</span>
                     <span class="text-xs text-gray-500 ml-1">MXN</span>
                   </div>
                 </div>
+
+                <!-- Botón de agregar al carrito -->
+                @if (item.stockStatus !== 'Sin existencias') {
+                  <button
+                    (click)="agregarAlCarrito($event, item)"
+                    [class]="productoAgregado === item._id
+                      ? 'w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0'
+                      : 'w-10 h-10 bg-[#D11C5E] text-white rounded-full flex items-center justify-center hover:bg-[#b91750] transition-all duration-300 flex-shrink-0'">
+                    @if (productoAgregado === item._id) {
+                      <i class="fa-solid fa-check text-sm"></i>
+                    } @else {
+                      <i class="fa-solid fa-bag-shopping text-sm"></i>
+                    }
+                  </button>
+                }
               </div>
             </div>
           </article>
-        </a>
+        }
+      </div>
+
+      <!-- PAGINACIÓN -->
+      @if (totalPaginas > 1) {
+        <div class="mt-12 flex items-center justify-center gap-2">
+          <button (click)="irAPagina(paginaActual - 1)"
+                  [disabled]="paginaActual === 1"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            Anterior
+          </button>
+
+          @for (pagina of getPaginasArray(); track pagina) {
+            <button (click)="irAPagina(pagina)"
+                    [class]="paginaActual === pagina
+                      ? 'px-4 py-2 bg-[#D11C5E] text-white rounded-lg text-sm font-bold'
+                      : 'px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700'">
+              {{ pagina }}
+            </button>
+          }
+
+          <button (click)="irAPagina(paginaActual + 1)"
+                  [disabled]="paginaActual === totalPaginas"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            Siguiente
+          </button>
+        </div>
       }
-
-    </div>
-
-    <!-- PAGINACIÓN -->
-    <div class="mt-12 flex items-center justify-center gap-2">
-      <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700">
-        Anterior
-      </button>
-      <button class="px-4 py-2 bg-[#D11C5E] text-white rounded-lg text-sm font-bold">
-        1
-      </button>
-      <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700">
-        2
-      </button>
-      <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700">
-        3
-      </button>
-      <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors text-gray-700">
-        Siguiente
-      </button>
-    </div>
+    }
 
   </div>
 </section>

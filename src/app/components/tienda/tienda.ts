@@ -1,146 +1,141 @@
-import { Component, OnInit } from '@angular/core';
-import { UiService } from '../../services/ui';
+import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
-
-// 1. Definimos las interfaces para corregir el error de TypeScript
-interface Badge {
-  text: string;
-  color: string;
-  position?: string; // El ? hace que esta propiedad sea opcional y evita el error
-}
-
-interface Producto {
-  id: number;
-  nombre: string;
-  precio: number;
-  precioOriginal?: number;
-  descripcion: string;
-  imagen: string;
-  badges: Badge[];
-  agotado?: boolean;
-}
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '@auth0/auth0-angular';
+import { UiService } from '../../services/ui';
+import { CarritoService } from '../../services/cartitem';
+import { ProductoService, Producto } from '../../services/producto';
 
 @Component({
   selector: 'app-tienda',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, FormsModule],
   templateUrl: './tienda.html',
   styleUrl: './tienda.css',
 })
 export class Tienda implements OnInit {
-  // 2. Aplicamos el tipo Producto[] al array para validar los datos
-  productos: Producto[] = [
-    {
-      id: 1,
-      nombre: 'Blusa Bordada Rosa Mexicano',
-      precio: 450,
-      descripcion: 'Bordado a mano',
-      imagen: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800',
-      badges: [{ text: 'En stock', color: 'bg-green-500' }]
-    },
-    {
-      id: 2,
-      nombre: 'Rebozo Tradicional Multicolor',
-      precio: 580,
-      descripcion: 'Tejido a mano',
-      imagen: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=800',
-      badges: [{ text: 'En stock', color: 'bg-green-500' }]
-    },
-    {
-      id: 3,
-      nombre: 'Vestido Chilac Flores',
-      precio: 890,
-      descripcion: 'Bordado artesanal',
-      imagen: 'https://images.unsplash.com/photo-1606103920295-9a091573f160?q=80&w=800',
-      badges: [{ text: 'Pocas unidades', color: 'bg-yellow-500' }]
-    },
-    {
-      id: 4,
-      nombre: 'Huipil Tradicional Azul',
-      precio: 720,
-      descripcion: '100% algodón',
-      imagen: 'https://images.unsplash.com/photo-1558769132-cb1aea8f1cf5?q=80&w=800',
-      badges: [{ text: 'En stock', color: 'bg-green-500' }]
-    },
-    {
-      id: 5,
-      nombre: 'Falda Bordada Chilac',
-      precio: 650,
-      descripcion: 'Edición limitada',
-      imagen: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=800',
-      badges: [{ text: 'Agotado', color: 'bg-red-500' }],
-      agotado: true
-    },
-    {
-      id: 6,
-      nombre: 'Blusa Flores Primavera',
-      precio: 520,
-      descripcion: 'Colección nueva',
-      imagen: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800',
-      badges: [
-        { text: 'Nuevo', color: 'bg-[#D11C5E]', position: 'left' },
-        { text: 'En stock', color: 'bg-green-500', position: 'right' }
-      ]
-    },
-    {
-      id: 7,
-      nombre: 'Vestido Largo Ceremonial',
-      precio: 1250,
-      descripcion: 'Eventos especiales',
-      imagen: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800',
-      badges: [{ text: 'En stock', color: 'bg-green-500' }]
-    },
-    {
-      id: 8,
-      nombre: 'Rebozo Negro Elegante',
-      precio: 680,
-      descripcion: 'Seda y algodón',
-      imagen: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?q=80&w=800',
-      badges: [{ text: 'Pocas unidades', color: 'bg-yellow-500' }]
-    },
-    {
-      id: 9,
-      nombre: 'Conjunto Bordado 2 Piezas',
-      precio: 980,
-      descripcion: 'Blusa + Falda',
-      imagen: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800',
-      badges: [{ text: 'En stock', color: 'bg-green-500' }]
-    },
-    {
-      id: 10,
-      nombre: 'Blusa Casual Diaria',
-      precio: 380,
-      descripcion: 'Uso cotidiano',
-      imagen: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=800',
-      badges: [{ text: 'En stock', color: 'bg-green-500' }]
-    },
-    {
-      id: 11,
-      nombre: 'Vestido Fiesta Gala',
-      precio: 1100,
-      precioOriginal: 1500,
-      descripcion: 'Bordado premium',
-      imagen: 'https://images.unsplash.com/photo-1606103920295-9a091573f160?q=80&w=800',
-      badges: [
-        { text: 'Oferta', color: 'bg-orange-500', position: 'left' },
-        { text: 'En stock', color: 'bg-green-500', position: 'right' }
-      ]
-    },
-    {
-      id: 12,
-      nombre: 'Blusa Tradicional Bordada',
-      precio: 490,
-      descripcion: 'Diseño clásico',
-      imagen: 'https://images.unsplash.com/photo-1558769132-cb1aea8f1cf5?q=80&w=800',
-      badges: [{ text: 'En stock', color: 'bg-green-500' }]
-    }
-  ];
+  public ui = inject(UiService);
+  public carrito = inject(CarritoService);
+  private productoService = inject(ProductoService);
+  private platformId = inject(PLATFORM_ID);
+  private auth = isPlatformBrowser(this.platformId) ? inject(AuthService) : null;
+  private cdr = inject(ChangeDetectorRef);
 
-  constructor(public ui: UiService) {}
+  productos: Producto[] = [];
+  cargando = false;
+  error: string | null = null;
+
+  paginaActual = 1;
+  totalPaginas = 1;
+  totalProductos = 0;
+  readonly porPagina = 12;
+
+  categoriaSeleccionada = '';
+  regionSeleccionada = '';
+  busqueda = '';
+
+  readonly categorias = ['Vestidos', 'Blusas', 'Accesorios', 'Otro'];
+  readonly regiones = ['Tehuacan', 'otro'];
+
+  productoAgregado: string | null = null;
 
   ngOnInit() {
     this.ui.cartVisible.set(true);
     this.ui.searchVisible.set(false);
+    this.cargarProductos();
+  }
+
+  cargarProductos() {
+    this.cargando = true;
+    this.error = null;
+    this.cdr.detectChanges();
+
+    this.productoService.getProductos({
+      page: this.paginaActual,
+      limit: this.porPagina,
+      category: this.categoriaSeleccionada || undefined,
+      region: this.regionSeleccionada || undefined,
+      search: this.busqueda || undefined
+    }).subscribe({
+      next: (res) => {
+        this.productos = res.products;
+        this.totalPaginas = res.totalPages;
+        this.totalProductos = res.total;
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.error = 'No se pudieron cargar los productos. Intenta de nuevo.';
+        this.cargando = false;
+        this.cdr.detectChanges();
+        console.error(err);
+      }
+    });
+  }
+
+  filtrarCategoria(categoria: string) {
+    this.categoriaSeleccionada = this.categoriaSeleccionada === categoria ? '' : categoria;
+    this.paginaActual = 1;
+    this.cargarProductos();
+  }
+
+  filtrarRegion(region: string) {
+    this.regionSeleccionada = this.regionSeleccionada === region ? '' : region;
+    this.paginaActual = 1;
+    this.cargarProductos();
+  }
+
+  buscar() {
+    this.paginaActual = 1;
+    this.cargarProductos();
+  }
+
+  irAPagina(pagina: number) {
+    if (pagina < 1 || pagina > this.totalPaginas) return;
+    this.paginaActual = pagina;
+    this.cargarProductos();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  getPaginasArray(): number[] {
+    const pages = [];
+    for (let i = 1; i <= this.totalPaginas; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  getImagenPrincipal(producto: Producto): string {
+  return producto.images?.[0] || '';
+  }
+
+  getBadgeColor(producto: Producto): string {
+    if (producto.stockStatus === 'Sin existencias') return 'bg-red-500';
+    if (producto.stock <= 5) return 'bg-yellow-500';
+    return 'bg-green-500';
+  }
+
+  getBadgeText(producto: Producto): string {
+    if (producto.stockStatus === 'Sin existencias') return 'Agotado';
+    if (producto.stock <= 5) return 'Pocas unidades';
+    return 'En stock';
+  }
+
+  agregarAlCarrito(evento: Event, producto: Producto) {
+    evento.preventDefault();
+    evento.stopPropagation();
+
+    if (producto.stockStatus === 'Sin existencias') return;
+
+    const agregado = this.carrito.agregarProducto(producto._id); // 👈 Solo el ID
+
+    if (!agregado) {
+      this.auth?.loginWithRedirect();
+      return;
+    }
+
+    this.productoAgregado = producto._id;
+    setTimeout(() => this.productoAgregado = null, 1500);
   }
 }

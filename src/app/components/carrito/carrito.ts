@@ -1,19 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit, inject, PLATFORM_ID, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UiService } from '../../services/ui';
-
-interface CartItem {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  image: string;
-  size?: string;
-  color?: string;
-}
+import { CarritoService } from '../../services/cartitem';
+import { AuthService } from '@auth0/auth0-angular';
 
 interface ShippingData {
   nombre: string;
@@ -35,52 +26,19 @@ interface ShippingData {
 })
 export class Carrito implements OnInit {
   ui = inject(UiService);
+  carrito = inject(CarritoService);
+  router = inject(Router);
+  platformId = inject(PLATFORM_ID);
+  auth = isPlatformBrowser(this.platformId) ? inject(AuthService) : null;
 
-  // Datos de envío
+  // Mientras verificamos sesión, no mostramos nada
+  verificando = signal(true);
+
   shippingData: ShippingData = {
-    nombre: '',
-    telefono: '',
-    calle: '',
-    colonia: '',
-    ciudad: '',
-    codigoPostal: '',
-    estado: '',
-    referencias: ''
+    nombre: '', telefono: '', calle: '',
+    colonia: '', ciudad: '', codigoPostal: '',
+    estado: '', referencias: ''
   };
-
-  // Carrito (mock data)
-  cartItems: CartItem[] = [
-    {
-      id: 1,
-      name: 'Blusa Bordada Rosa Mexicano',
-      description: 'Bordado a mano con hilos de seda',
-      price: 450,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800',
-      size: 'M',
-      color: 'Rosa Mexicano'
-    },
-    {
-      id: 2,
-      name: 'Rebozo Tradicional Multicolor',
-      description: 'Tejido a mano 100% algodón',
-      price: 580,
-      quantity: 2,
-      image: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=800',
-      size: 'Única',
-      color: 'Multicolor'
-    },
-    {
-      id: 3,
-      name: 'Vestido Chilac Flores',
-      description: 'Bordado artesanal premium',
-      price: 890,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1606103920295-9a091573f160?q=80&w=800',
-      size: 'L',
-      color: 'Azul Flores'
-    }
-  ];
 
   discountCode = '';
   discountApplied = false;
@@ -91,10 +49,41 @@ export class Carrito implements OnInit {
   ngOnInit() {
     this.ui.cartVisible.set(false);
     this.ui.searchVisible.set(false);
+
+    if (!isPlatformBrowser(this.platformId) || !this.auth) {
+      this.verificando.set(false);
+      return;
+    }
+
+    // Esperar a que Auth0 confirme si hay sesión o no
+    this.auth.isAuthenticated$.subscribe({
+      next: (isAuthenticated) => {
+        if (!isAuthenticated) {
+          // No hay sesión, mandar al login sin mostrar nada
+          this.auth?.loginWithRedirect({ appState: { target: '/carrito' } });
+          return;
+        }
+
+        // Hay sesión confirmada, ahora sí cargar el carrito
+        this.verificando.set(false);
+        this.carrito.sincronizarConBackend();
+      },
+      error: () => {
+        this.auth?.loginWithRedirect({ appState: { target: '/carrito' } });
+      }
+    });
+  }
+
+  get cartItems() {
+    return this.carrito.itemsDetalle();
+  }
+
+  get itemCount(): number {
+    return this.carrito.cantidad;
   }
 
   get subtotal(): number {
-    return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return this.carrito.total;
   }
 
   get shipping(): number {
@@ -105,29 +94,24 @@ export class Carrito implements OnInit {
     return this.subtotal + this.shipping - this.discountAmount;
   }
 
-  get itemCount(): number {
-    return this.cartItems.reduce((total, item) => total + item.quantity, 0);
+  updateQuantity(id: string, cantidad: number) {
+    this.carrito.actualizarCantidad(id, cantidad);
   }
 
-  updateQuantity(itemId: number, newQuantity: number) {
-    if (newQuantity < 1) {
-      this.removeItem(itemId);
-      return;
-    }
-    const item = this.cartItems.find(i => i.id === itemId);
-    if (item) {
-      item.quantity = newQuantity;
-    }
+  removeItem(id: string) {
+    this.carrito.quitarProducto(id);
   }
 
-  removeItem(itemId: number) {
-    this.cartItems = this.cartItems.filter(item => item.id !== itemId);
+  clearCart() {
+    if (confirm('¿Estás segura de vaciar el carrito?')) {
+      this.carrito.limpiarCarrito();
+    }
   }
 
   applyDiscount() {
-    if (this.discountCode.toLowerCase() === 'yolik2026') {
+    if (this.discountCode.toUpperCase() === 'YOLIK2026') {
       this.discountApplied = true;
-      this.discountAmount = this.subtotal * 0.1;
+      this.discountAmount = Math.round(this.subtotal * 0.1);
     }
   }
 
@@ -138,35 +122,11 @@ export class Carrito implements OnInit {
   }
 
   proceedToCheckout() {
-    const pedido = {
+    console.log('Procesando pedido:', {
       items: this.cartItems,
       shippingData: this.shippingData,
-      subtotal: this.subtotal,
-      shipping: this.shipping,
-      discount: this.discountAmount,
-      total: this.total,
-      fecha: new Date()
-    };
-
-    console.log('Procesando pedido:', pedido);
-
-    // CONECTAR CON BACKEND
-    // this.pedidosService.crear(pedido).subscribe({
-    //   next: (response) => {
-    //     this.router.navigate(['/pago', response.pedidoId]);
-    //   },
-    //   error: (err) => {
-    //     console.error('Error:', err);
-    //     alert('Error al procesar el pedido');
-    //   }
-    // });
-
-    alert('¡Pedido procesado!\n\nEnvío a: ' + this.shippingData.calle + ', ' + this.shippingData.ciudad + '\nTotal: $' + this.total);
-  }
-
-  clearCart() {
-    if (confirm('¿Estás segura de vaciar el carrito?')) {
-      this.cartItems = [];
-    }
+      total: this.total
+    });
+    alert('¡Pedido procesado!\nTotal: $' + this.total);
   }
 }

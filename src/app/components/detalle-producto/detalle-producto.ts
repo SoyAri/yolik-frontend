@@ -1,26 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-
-interface Producto {
-  id: number;
-  nombre: string;
-  categoria: string;
-  descripcion: string;
-  precio: number;
-  precioOriginal?: number;
-  stock: number;
-  imagenes: string[];
-  caracteristicas: string[];
-}
-
-interface ProductoRelacionado {
-  id: number;
-  nombre: string;
-  categoria: string;
-  precio: number;
-  imagen: string;
-}
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CarritoService } from '../../services/cartitem';
+import { UiService } from '../../services/ui';
+import { AuthService } from '@auth0/auth0-angular';
+import { ProductoService, Producto } from '../../services/producto';
 
 @Component({
   selector: 'app-detalle-producto',
@@ -30,144 +14,126 @@ interface ProductoRelacionado {
   styleUrl: './detalle-producto.css',
 })
 export class DetalleProducto implements OnInit {
+  private carrito = inject(CarritoService);
+  private ui = inject(UiService);
+  private platformId = inject(PLATFORM_ID);
+  private auth = isPlatformBrowser(this.platformId) ? inject(AuthService) : null;
+  private productoService = inject(ProductoService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
-  // Estado
+  productoAgregado = false;
   imagenActual = 0;
   cantidad = 1;
-  productoId: number = 1;
+  cargando = false;
+  error: string | null = null;
 
-  // Producto actual (datos de prueba - después viene del backend)
-  producto: Producto = {
-    id: 1,
-    nombre: 'Blusa Bordada Rosa Mexicano',
-    categoria: 'Blusas Tradicionales',
-    descripcion: 'Hermosa blusa tradicional de Chilac, Puebla, elaborada 100% a mano por artesanas locales. Cada bordado cuenta una historia de nuestra cultura y tradición. Confeccionada en manta de algodón suave y transpirable, perfecta para cualquier ocasión. Los motivos florales en tonos rosa mexicano representan la primavera y la alegría de nuestra tierra.',
-    precio: 450,
-    precioOriginal: 550,
-    stock: 8,
-    imagenes: [
-      'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800',
-      'https://images.unsplash.com/photo-1606103920295-9a091573f160?q=80&w=800',
-      'https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=800',
-      'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=800'
-    ],
-    caracteristicas: [
-      '100% algodón natural',
-      'Bordado a mano por artesanas de Chilac',
-      'Diseño único y exclusivo',
-      'Tallas disponibles: S, M, L, XL',
-      'Cuidado: Lavar a mano en agua fría',
-      'Hecho en México'
-    ]
-  };
-
-  // Productos relacionados (datos de prueba)
-  productosRelacionados: ProductoRelacionado[] = [
-    {
-      id: 2,
-      nombre: 'Rebozo Tradicional Multicolor',
-      categoria: 'Rebozos',
-      precio: 580,
-      imagen: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=800'
-    },
-    {
-      id: 3,
-      nombre: 'Vestido Chilac Flores',
-      categoria: 'Vestidos',
-      precio: 890,
-      imagen: 'https://images.unsplash.com/photo-1606103920295-9a091573f160?q=80&w=800'
-    },
-    {
-      id: 4,
-      nombre: 'Huipil Tradicional Azul',
-      categoria: 'Huipiles',
-      precio: 720,
-      imagen: 'https://images.unsplash.com/photo-1558769132-cb1aea8f1cf5?q=80&w=800'
-    },
-    {
-      id: 5,
-      nombre: 'Blusa Flores Primavera',
-      categoria: 'Blusas',
-      precio: 520,
-      imagen: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800'
-    }
-  ];
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  producto: Producto | null = null;
+  productosRelacionados: Producto[] = [];
 
   ngOnInit() {
-    // Obtener el ID del producto desde la URL
+    this.ui.cartVisible.set(true);
+    this.ui.searchVisible.set(false);
+
     this.route.params.subscribe(params => {
-      this.productoId = +params['id']; // El + convierte string a number
-      this.cargarProducto(this.productoId);
+      const id = params['id'];
+      this.cargarProducto(id);
     });
   }
 
-  // Cargar producto desde el backend (por ahora usa datos de prueba)
-  cargarProducto(id: number) {
-    // TODO: Llamar al servicio del backend
-    // this.productoService.obtenerProducto(id).subscribe(...)
-
-    // Por ahora solo cambiamos el ID
-    this.producto.id = id;
-
-    // Resetear estado
+  cargarProducto(id: string) {
+    this.cargando = true;
+    this.error = null;
     this.imagenActual = 0;
     this.cantidad = 1;
+    this.cdr.detectChanges();
 
-    // Scroll al inicio
-    window.scrollTo(0, 0);
+    if (isPlatformBrowser(this.platformId)) {
+      window.scrollTo(0, 0);
+    }
+
+    this.productoService.getProductoPorId(id).subscribe({
+      next: (producto) => {
+        this.producto = producto;
+        this.cargando = false;
+        this.cdr.detectChanges();
+        this.cargarRelacionados(producto);
+      },
+      error: (err) => {
+        console.error(err);
+        this.error = 'No se pudo cargar el producto.';
+        this.cargando = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
-  // Cambiar imagen del carrusel
+  cargarRelacionados(producto: Producto) {
+    this.productoService.getProductos({
+      page: 1,
+      limit: 4,
+      category: producto.category
+    }).subscribe({
+      next: (res) => {
+        this.productosRelacionados = res.products.filter(p => p._id !== producto._id);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.productosRelacionados = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   cambiarImagen(index: number) {
     this.imagenActual = index;
   }
 
-  // Incrementar cantidad
   incrementarCantidad() {
-    if (this.cantidad < this.producto.stock) {
+    if (this.producto && this.cantidad < this.producto.stock) {
       this.cantidad++;
     }
   }
 
-  // Decrementar cantidad
   decrementarCantidad() {
     if (this.cantidad > 1) {
       this.cantidad--;
     }
   }
 
-  // Calcular porcentaje de descuento
   calcularDescuento(): number {
-    if (this.producto.precioOriginal) {
-      const descuento = ((this.producto.precioOriginal - this.producto.precio) / this.producto.precioOriginal) * 100;
-      return Math.round(descuento);
+    if (this.producto?.originalPrice && this.producto.originalPrice > this.producto.price) {
+      return Math.round(((this.producto.originalPrice - this.producto.price) / this.producto.originalPrice) * 100);
     }
     return 0;
   }
 
-  // Agregar al carrito
   agregarAlCarrito() {
-    if (this.producto.stock === 0) return;
+    if (!this.producto || this.producto.stock === 0) return;
 
-    // TODO: Llamar al servicio del carrito
-    // this.carritoService.agregar(this.producto, this.cantidad);
+    if (!this.ui.isLoggedIn()) {
+      this.auth?.loginWithRedirect();
+      return;
+    }
 
-    console.log(`Agregando ${this.cantidad} unidad(es) de ${this.producto.nombre} al carrito`);
+    const agregado = this.carrito.agregarProducto(this.producto._id);
 
-    // Mostrar notificación (opcional)
-    alert(`¡${this.cantidad} ${this.producto.nombre} agregado(s) al carrito!`);
+    if (!agregado) {
+      this.auth?.loginWithRedirect();
+      return;
+    }
 
-    // Resetear cantidad
+    this.productoAgregado = true;
+    setTimeout(() => this.productoAgregado = false, 1500);
     this.cantidad = 1;
   }
 
-  // Ver detalle de otro producto
-  verProducto(id: number) {
+  verProducto(id: string) {
     this.router.navigate(['/detalle-producto', id]);
+  }
+
+  getImagenPrincipal(): string {
+  return this.producto?.images?.[this.imagenActual] || '';
   }
 }

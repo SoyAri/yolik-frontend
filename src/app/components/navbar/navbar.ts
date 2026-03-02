@@ -1,15 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 import { UiService } from '../../services/ui';
-
-interface CartItem {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
+import { CarritoService } from '../../services/cartitem';
+import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-navbar',
@@ -20,74 +14,41 @@ interface CartItem {
 })
 export class Navbar {
   ui = inject(UiService);
+  carrito = inject(CarritoService);
+  platformId = inject(PLATFORM_ID);
+  auth = isPlatformBrowser(this.platformId) ? inject(AuthService) : null;
 
-  // Estado del carrito
   isCartOpen = false;
 
-  // Items del carrito (datos de prueba - después vienen del backend)
-  cartItems: CartItem[] = [
-    {
-      id: 1,
-      name: 'Blusa Bordada Rosa',
-      description: 'Bordado a mano',
-      price: 450,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800'
-    },
-    {
-      id: 2,
-      name: 'Rebozo Tradicional',
-      description: 'Tejido a mano',
-      price: 580,
-      quantity: 2,
-      image: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=800'
-    }
-  ];
+  get cartItems() {
+    return this.carrito.itemsDetalle();
+  }
 
-  // Computed properties
   get cartItemCount(): number {
-    return this.cartItems.reduce((total, item) => total + item.quantity, 0);
+    return this.carrito.cantidad;
   }
 
   get cartTotal(): number {
-    return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return this.carrito.total;
   }
 
-  // Métodos del carrito
   toggleCart() {
     this.isCartOpen = !this.isCartOpen;
   }
 
-  updateQuantity(itemId: number, newQuantity: number) {
-    if (newQuantity < 1) {
-      this.removeItem(itemId);
-      return;
-    }
-
-    const item = this.cartItems.find(i => i.id === itemId);
-    if (item) {
-      item.quantity = newQuantity;
-    }
+  updateQuantity(itemId: string, newQuantity: number) {
+    this.carrito.actualizarCantidad(itemId, newQuantity);
   }
 
-  removeItem(itemId: number) {
-    this.cartItems = this.cartItems.filter(item => item.id !== itemId);
+  removeItem(itemId: string) {
+    this.carrito.quitarProducto(itemId);
   }
 
-  // TODO: Conectar con el backend
-  // addToCart(product: any) {
-  //   const existingItem = this.cartItems.find(item => item.id === product.id);
-  //   if (existingItem) {
-  //     existingItem.quantity++;
-  //   } else {
-  //     this.cartItems.push({
-  //       id: product.id,
-  //       name: product.name,
-  //       description: product.description,
-  //       price: product.price,
-  //       quantity: 1,
-  //       image: product.image
-  //     });
-  //   }
-  // }
+  login() {
+    this.auth?.loginWithRedirect();
+  }
+
+  logout() {
+    this.auth?.logout({ logoutParams: { returnTo: window.location.origin } });
+  }
 }
