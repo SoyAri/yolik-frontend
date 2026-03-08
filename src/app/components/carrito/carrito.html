@@ -185,7 +185,7 @@
                             <div class="flex items-center gap-2 bg-gray-100 rounded-lg px-2 py-1">
                               <button
                                 (click)="updateQuantity(item.id, item.cantidad - 1)"
-                                class="w-8 h-8 bg-white rounded-lg flex items-center justify-center hover:bg-[#D11C5E] hover:text-white transition-all shadow-sm"
+                                class="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center hover:bg-[#D11C5E] hover:text-white transition-all shadow-sm"
                               >
                                 <i class="fa-solid fa-minus text-xs"></i>
                               </button>
@@ -195,7 +195,7 @@
                               <button
                                 (click)="updateQuantity(item.id, item.cantidad + 1)"
                                 [disabled]="item.cantidad >= item.stock"
-                                class="w-8 h-8 bg-white rounded-lg flex items-center justify-center hover:bg-[#D11C5E] hover:text-white transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                                class="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center hover:bg-[#D11C5E] hover:text-white transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <i class="fa-solid fa-plus text-xs"></i>
                               </button>

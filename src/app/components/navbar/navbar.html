@@ -183,7 +183,7 @@
                         <div class="flex items-center gap-1">
                           <button
                             (click)="updateQuantity(item.id, item.cantidad - 1)"
-                            class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors"
+                            class="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
                           >
                             <i class="fa-solid fa-minus text-[10px]"></i>
                           </button>
@@ -193,7 +193,7 @@
                           <button
                             (click)="updateQuantity(item.id, item.cantidad + 1)"
                             [disabled]="item.cantidad >= item.stock"
-                            class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            class="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             <i class="fa-solid fa-plus text-[10px]"></i>
                           </button>
