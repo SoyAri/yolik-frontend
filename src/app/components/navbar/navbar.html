@@ -1,12 +1,11 @@
 @if (ui.visible()) {
-  <nav
-    class="fixed top-0 left-0 w-full h-16 bg-[#F2D2A9] text-black backdrop-blur-md border-b z-[100] px-6 flex items-center justify-between"
-  >
+  <nav class="fixed top-0 left-0 w-full h-16 bg-[#F2D2A9] text-black backdrop-blur-md border-b z-[100] px-6 flex items-center justify-between">
     <div class="flex items-center h-full gap-8">
       <a routerLink="/" class="flex items-center text-2xl font-black tracking-tighter">
         <img src="/yoliknavbar.png" alt="YOLIK Logo" class="h-12 w-auto mr-2" />
       </a>
       <div class="hidden md:flex h-full gap-2">
+        <!-- AQUÍ ESTÁ LA VALIDACIÓN CLAVE PARA ADMINISTRACIÓN -->
         @for (item of ui.menuItems; track item.id) {
           @if (item.visible() && (item.id !== 'administracion' || ui.isAdmin())) {
             <a

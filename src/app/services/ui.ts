@@ -1,7 +1,6 @@
 import { Injectable, signal, WritableSignal, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '@auth0/auth0-angular';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 export interface NavItem {
   id: string;
@@ -15,7 +14,6 @@ export interface NavItem {
 export class UiService {
   private platformId = inject(PLATFORM_ID);
   private auth = isPlatformBrowser(this.platformId) ? inject(AuthService) : undefined;
-  private http = isPlatformBrowser(this.platformId) ? inject(HttpClient) : undefined;
 
   visible = signal(true);
   isLoggedIn = signal(false);
@@ -33,40 +31,28 @@ export class UiService {
   profileVisible = signal(true);
 
   constructor() {
-    if (this.auth && this.http) {
+    if (this.auth) {
       this.auth.isAuthenticated$.subscribe(isAuth => {
         this.isLoggedIn.set(isAuth);
-        if (isAuth) {
-          this.auth!.getAccessTokenSilently().subscribe({
-            next: (token) => {
-              if (token) {
-                this.http!.get<any>('/api/auth/admin-check', {
-                  headers: new HttpHeaders({
-                    Authorization: `Bearer ${token}`
-                  })
-                }).subscribe({
-                  next: (res) => this.isAdmin.set(
-                    res.role === 'admin' ||
-                    (Array.isArray(res.roles) && res.roles.includes('admin')) ||
-                    (Array.isArray(res.permissions) && res.permissions.includes('read:dashboard'))
-                  ),
-                  error: () => this.isAdmin.set(false)
-                });
-              } else {
-                this.isAdmin.set(false);
-              }
-            },
-            error: () => this.isAdmin.set(false)
-          });
-        } else {
-          this.isAdmin.set(false);
-        }
       });
+
       this.auth.user$.subscribe(user => {
         if (user) {
           this.userName.set(user.name ?? user.email ?? '');
+
+          // IMPORTANTE: Lee los roles expuestos desde Auth0 Actions
+          const roles = user['https://yolik.com/roles'] || [];
+
+          // Verifica si el arreglo contiene el rol 'admin'
+          if (Array.isArray(roles) && roles.includes('admin')) {
+            this.isAdmin.set(true);
+          } else {
+            this.isAdmin.set(false);
+          }
+
         } else {
           this.userName.set('');
+          this.isAdmin.set(false);
         }
       });
     }

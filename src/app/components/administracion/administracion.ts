@@ -1,51 +1,43 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef, NgZone } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UiService } from '../../services/ui';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { AuthService } from '@auth0/auth0-angular';
+import { environment } from '../../../environments/environment';
 
-// Interfaces
 interface Pedido {
-  id: number;
+  id: string;
+  orderNumber?: string;
   cliente: string;
-  email: string;
-  direccion: string;
-  fecha: Date;
+  email?: string;
+  direccion?: string;
+  fecha: Date | string;
   total: number;
-  estado: 'Pendiente' | 'Procesando' | 'Enviado' | 'Entregado' | 'Cancelado';
+  estado: string;
+  paymentStatus?: string;
   items: any[];
 }
 
-interface Usuario {
-  id: number;
-  nombre: string;
-  email: string;
-  fechaRegistro: Date;
-  totalPedidos: number;
-  totalGastado: number;
-}
-
 interface Producto {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  precio: number;
+  _id?: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
   stock: number;
-  categoria: string;
-  imagenes: string[];
-  tallas: string[];
+  category: string;
+  region?: string;
+  images: string[];
+  active?: boolean;
 }
 
 interface Stats {
   ventasTotales: number;
   totalPedidos: number;
-  totalUsuarios: number;
   pedidosPendientes: number;
-  ventasHoy: number;
-  pedidosHoy: number;
-  ventasSemana: number;
-  pedidosSemana: number;
-  ventasMes: number;
-  pedidosMes: number;
 }
 
 @Component({
@@ -56,255 +48,332 @@ interface Stats {
   styleUrl: './administracion.css',
 })
 export class Administracion implements OnInit {
-  vistaActual: 'stats' | 'pedidos' | 'usuarios' | 'productos' = 'stats';
+  vistaActual: 'stats' | 'pedidos' | 'productos' = 'stats';
   filtroPedidos = '';
   filtroEstado = '';
-  filtroUsuarios = '';
 
-  stats: Stats = {
-    ventasTotales: 0,
-    totalPedidos: 0,
-    totalUsuarios: 0,
-    pedidosPendientes: 0,
-    ventasHoy: 0,
-    pedidosHoy: 0,
-    ventasSemana: 0,
-    pedidosSemana: 0,
-    ventasMes: 0,
-    pedidosMes: 0
-  };
+  stats: Stats = { ventasTotales: 0, totalPedidos: 0, pedidosPendientes: 0 };
 
   pedidos: Pedido[] = [];
-  usuarios: Usuario[] = [];
   productos: Producto[] = [];
 
-  // Tallas disponibles
   tallasDisponibles: string[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Única'];
 
   nuevoProducto: Producto = {
-    id: 0,
-    nombre: '',
-    descripcion: '',
-    precio: 0,
-    stock: 0,
-    categoria: '',
-    imagenes: [''],
-    tallas: []
+    name: '', description: '', price: 0, originalPrice: 0,
+    stock: 0, category: 'Vestidos', region: 'Tehuacan', images: ['']
   };
+
+  // UI state
   isLoadingProducto = false;
-  mensajeProducto = '';
+  formularioAbierto = false;   // <-- colapsable
+  formSubmitIntentado = false; // <-- para no mostrar errores hasta que intenten guardar
+
+  // Toast — siempre en el DOM, oculto/visible por clase CSS
+  toastMensaje = '';
+  toastExito = true; // true = verde, false = rojo
+  toastVisible = false;
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
+  cargandoAdmin = true;
+  token = '';
+
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private apiUrl = environment.apiUrl;
+  private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
+  private auth = isPlatformBrowser(this.platformId) ? inject(AuthService) : undefined;
 
   constructor(public ui: UiService) {}
 
-
   ngOnInit() {
-    this.cargarDatosSimulados();
-    this.calcularStats();
-    this.ui.cartVisible.set(false);
-    this.ui.searchVisible.set(false);
+    if (!this.auth) return;
+
+    setTimeout(() => {
+      this.ui.cartVisible.set(false);
+      this.ui.searchVisible.set(false);
+    }, 10);
+
+    this.auth.isAuthenticated$.subscribe(isAuth => {
+      if (!isAuth) { this.router.navigate(['/']); return; }
+
+      this.auth!.user$.subscribe(user => {
+        if (!user) { this.router.navigate(['/']); return; }
+
+        const roles = user['https://yolik.com/roles'] || [];
+        if (!Array.isArray(roles) || !roles.includes('admin')) {
+          this.router.navigate(['/']); return;
+        }
+
+        this.auth!.getAccessTokenSilently().subscribe({
+          next: (token) => {
+            this.token = token;
+            this.cargandoAdmin = false;
+            this.cdr.detectChanges();
+            this.cargarDatosReales();
+          },
+          error: () => this.router.navigate(['/'])
+        });
+      });
+    });
   }
 
+  // ----------------------------------------------------------------
+  // TOAST — siempre en DOM, visible/oculto via clase. Garantiza render.
+  // ----------------------------------------------------------------
+  mostrarToast(mensaje: string, exito: boolean, duracionMs = 4500) {
+    if (this.toastTimer) { clearTimeout(this.toastTimer); this.toastTimer = null; }
+
+    this.ngZone.run(() => {
+      this.toastMensaje = mensaje;
+      this.toastExito = exito;
+      this.toastVisible = true;
+      this.cdr.markForCheck();
+      this.cdr.detectChanges();
+
+      this.toastTimer = setTimeout(() => {
+        this.ngZone.run(() => {
+          this.toastVisible = false;
+          this.toastTimer = null;
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+        });
+      }, duracionMs);
+    });
+  }
+
+  cerrarToast() {
+    if (this.toastTimer) { clearTimeout(this.toastTimer); this.toastTimer = null; }
+    this.toastVisible = false;
+    this.cdr.detectChanges();
+  }
+
+  // ----------------------------------------------------------------
+  // FORMULARIO colapsable
+  // ----------------------------------------------------------------
+  abrirFormularioNuevo() {
+    this.limpiarFormularioProducto();
+    this.formSubmitIntentado = false;
+    this.formularioAbierto = true;
+    setTimeout(() => {
+      document.getElementById('form-producto')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
+  cerrarFormulario() {
+    this.formularioAbierto = false;
+    this.formSubmitIntentado = false;
+    this.limpiarFormularioProducto();
+  }
+
+  // ----------------------------------------------------------------
+  // DATOS
+  // ----------------------------------------------------------------
+  cargarDatosReales() {
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
+
+    this.http.get<any>(`${this.apiUrl}/api/dashboard/summary?days=30`, { headers }).subscribe({
+      next: (res) => {
+        if (res?.metrics) {
+          this.stats.ventasTotales = res.metrics.grossRevenue || 0;
+          this.stats.totalPedidos = res.metrics.orders || 0;
+          const pending = res.orderStatus?.find((s: any) => s.status === 'pending');
+          this.stats.pedidosPendientes = pending?.count || 0;
+        }
+        if (res?.recentOrders) {
+          this.pedidos = res.recentOrders.map((o: any) => ({
+            id: o._id, orderNumber: o.orderNumber,
+            cliente: o.userId?.name || 'Cliente Oculto',
+            fecha: o.createdAt, total: o.total,
+            estado: o.status, paymentStatus: o.paymentStatus, items: []
+          }));
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error cargando stats', err)
+    });
+
+    this.cargarProductos();
+  }
+
+  cargarProductos() {
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
+    this.http.get<any>(`${this.apiUrl}/api/dashboard/products`, { headers }).subscribe({
+      next: (res) => { this.productos = res.products || res; this.cdr.detectChanges(); },
+      error: (err) => console.error('Error cargando productos', err)
+    });
+  }
+
+  private recargarProductos(onDone?: () => void) {
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
+    this.http.get<any>(`${this.apiUrl}/api/dashboard/products`, { headers }).subscribe({
+      next: (res) => {
+        this.ngZone.run(() => {
+          this.productos = res.products || res;
+          this.cdr.detectChanges();
+          onDone?.();
+        });
+      },
+      error: () => onDone?.()
+    });
+  }
+
+  // ----------------------------------------------------------------
+  // PEDIDOS
+  // ----------------------------------------------------------------
   getPedidosFiltrados(): Pedido[] {
-    let resultado = this.pedidos;
+    let r = this.pedidos;
     if (this.filtroPedidos) {
-      const busqueda = this.filtroPedidos.toLowerCase();
-      resultado = resultado.filter(p =>
-        p.id.toString().includes(busqueda) ||
-        p.cliente.toLowerCase().includes(busqueda) ||
-        p.email.toLowerCase().includes(busqueda)
+      const b = this.filtroPedidos.toLowerCase();
+      r = r.filter(p =>
+        p.orderNumber?.toString().includes(b) ||
+        p.id?.toString().includes(b) ||
+        p.cliente.toLowerCase().includes(b)
       );
     }
-    if (this.filtroEstado) {
-      resultado = resultado.filter(p => p.estado === this.filtroEstado);
-    }
-    return resultado;
+    if (this.filtroEstado) r = r.filter(p => p.estado === this.filtroEstado);
+    return r;
   }
 
   actualizarEstadoPedido(pedido: Pedido) {
-    console.log('Actualizando estado del pedido:', pedido.id, 'a', pedido.estado);
-    this.calcularStats();
+    console.log('Actualizando estado (Simulado):', pedido.id, '->', pedido.estado);
   }
 
   verDetallePedido(pedido: Pedido) {
-    alert(`Pedido #${pedido.id}\nCliente: ${pedido.cliente}\nDirección: ${pedido.direccion}\nTotal: $${pedido.total}`);
+    alert(`Pedido #${pedido.orderNumber || pedido.id}\nCliente: ${pedido.cliente}\nTotal: $${pedido.total}`);
   }
 
-  limpiarFiltros() {
-    this.filtroPedidos = '';
-    this.filtroEstado = '';
-  }
+  limpiarFiltros() { this.filtroPedidos = ''; this.filtroEstado = ''; }
 
-  getUsuariosFiltrados(): Usuario[] {
-    let resultado = this.usuarios;
-    if (this.filtroUsuarios) {
-      const busqueda = this.filtroUsuarios.toLowerCase();
-      resultado = resultado.filter(u =>
-        u.nombre.toLowerCase().includes(busqueda) ||
-        u.email.toLowerCase().includes(busqueda)
-      );
-    }
-    return resultado;
-  }
+  // ----------------------------------------------------------------
+  // PRODUCTOS
+  // ----------------------------------------------------------------
+  agregarImagen() { this.nuevoProducto.images.push(''); }
 
-  verDetalleUsuario(usuario: Usuario) {
-    alert(`Usuario: ${usuario.nombre}\nCorreo: ${usuario.email}\nPedidos: ${usuario.totalPedidos}\nTotal: $${usuario.totalGastado}`);
-  }
-
-  eliminarUsuario(usuario: Usuario) {
-    if (!confirm(`¿Eliminar a ${usuario.nombre}?`)) return;
-    this.usuarios = this.usuarios.filter(u => u.id !== usuario.id);
-    this.calcularStats();
-  }
-
-  limpiarFiltrosUsuarios() {
-    this.filtroUsuarios = '';
-  }
-
-  // ==================== PRODUCTOS ====================
-
-  // Agregar/quitar talla
-  toggleTalla(talla: string) {
-    const index = this.nuevoProducto.tallas.indexOf(talla);
-    if (index > -1) {
-      this.nuevoProducto.tallas.splice(index, 1);
-    } else {
-      this.nuevoProducto.tallas.push(talla);
-    }
-  }
-
-  // Agregar campo de imagen
-  agregarImagen() {
-    this.nuevoProducto.imagenes.push('');
-  }
-
-  // Eliminar campo de imagen
   eliminarImagen(index: number) {
-    if (this.nuevoProducto.imagenes.length > 1) {
-      this.nuevoProducto.imagenes.splice(index, 1);
-    }
+    if (this.nuevoProducto.images.length > 1) this.nuevoProducto.images.splice(index, 1);
   }
+
+  trackByIndex(index: number): number { return index; }
 
   guardarProducto() {
+    // Marcar que se intentó guardar (activa validaciones visuales)
+    this.formSubmitIntentado = true;
     this.isLoadingProducto = true;
-    this.mensajeProducto = '';
-    this.nuevoProducto.id = this.productos.length > 0
-      ? Math.max(...this.productos.map(p => p.id)) + 1
-      : 1;
+    this.cerrarToast();
+    this.cdr.detectChanges();
 
-    setTimeout(() => {
-      this.productos.push({...this.nuevoProducto});
-      this.mensajeProducto = '✓ Producto guardado';
-      this.limpiarFormularioProducto();
-      this.isLoadingProducto = false;
-      setTimeout(() => this.mensajeProducto = '', 3000);
-    }, 1000);
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
+
+    let origPrice = this.nuevoProducto.originalPrice;
+    if (origPrice != null && this.nuevoProducto.price > origPrice) origPrice = this.nuevoProducto.price;
+
+    const payload = {
+      ...this.nuevoProducto,
+      originalPrice: origPrice,
+      images: this.nuevoProducto.images.filter(img => img.trim() !== '')
+    };
+
+    const esEdit = !!this.nuevoProducto._id;
+    const url = esEdit
+      ? `${this.apiUrl}/api/dashboard/products/${this.nuevoProducto._id}`
+      : `${this.apiUrl}/api/dashboard/products`;
+    const req$ = esEdit ? this.http.patch(url, payload, { headers }) : this.http.post(url, payload, { headers });
+
+    req$.subscribe({
+      next: () => {
+        this.ngZone.run(() => {
+          this.isLoadingProducto = false;
+          this.formSubmitIntentado = false;
+          this.formularioAbierto = false;
+          this.limpiarFormularioProducto();
+          this.cdr.detectChanges();
+        });
+        this.recargarProductos(() => {
+          this.mostrarToast(esEdit ? '✓ Producto actualizado' : '✓ Producto creado', true);
+        });
+      },
+      error: (err) => {
+        this.ngZone.run(() => {
+          this.isLoadingProducto = false;
+          this.formSubmitIntentado = false;
+          this.cdr.detectChanges();
+        });
+        this.mostrarErrorMongoose(err);
+      }
+    });
+  }
+
+  mostrarErrorMongoose(err: any) {
+    let msg = 'Error al procesar la solicitud.';
+    if (err.error) {
+      if (err.error.errors && typeof err.error.errors === 'object') {
+        const k = Object.keys(err.error.errors)[0];
+        msg = err.error.errors[k]?.message || err.error.errors[k];
+      } else if (err.error.message) {
+        msg = err.error.message;
+      } else if (typeof err.error === 'string') {
+        msg = err.error;
+      }
+    }
+    console.error('Error API:', err.error);
+    this.mostrarToast(`Error: ${msg}`, false, 7000);
   }
 
   editarProducto(producto: Producto) {
-    this.nuevoProducto = {...producto};
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.nuevoProducto = { ...producto };
+    if (!this.nuevoProducto.images?.length) this.nuevoProducto.images = [''];
+    this.formSubmitIntentado = false;
+    this.formularioAbierto = true;
+    setTimeout(() => {
+      document.getElementById('form-producto')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   }
 
   eliminarProducto(producto: Producto) {
-    if (!confirm(`¿Eliminar "${producto.nombre}"?`)) return;
-    this.productos = this.productos.filter(p => p.id !== producto.id);
+    if (!confirm(`¿Eliminar "${producto.name}"?`) || !producto._id) return;
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
+    this.http.delete(`${this.apiUrl}/api/dashboard/products/${producto._id}`, { headers }).subscribe({
+      next: () => {
+        this.ngZone.run(() => {
+          this.productos = this.productos.filter(p => p._id !== producto._id);
+          this.cdr.detectChanges();
+        });
+        this.mostrarToast(`"${producto.name}" eliminado`, true);
+      },
+      error: () => this.mostrarToast('No se pudo eliminar el producto', false, 7000)
+    });
   }
 
   limpiarFormularioProducto() {
     this.nuevoProducto = {
-      id: 0,
-      nombre: '',
-      descripcion: '',
-      precio: 0,
-      stock: 0,
-      categoria: '',
-      imagenes: [''],
-      tallas: []
+      name: '', description: '', price: 0, originalPrice: 0,
+      stock: 0, category: 'Vestidos', region: 'Tehuacan', images: ['']
     };
   }
 
-  calcularStats() {
-    this.stats.ventasTotales = this.pedidos.reduce((sum, p) => sum + p.total, 0);
-    this.stats.totalPedidos = this.pedidos.length;
-    this.stats.totalUsuarios = this.usuarios.length;
-    this.stats.pedidosPendientes = this.pedidos.filter(p => p.estado === 'Pendiente').length;
-
-    const hoy = new Date();
-    const inicioSemana = new Date(hoy);
-    inicioSemana.setDate(hoy.getDate() - 7);
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-
-    const pedidosHoy = this.pedidos.filter(p =>
-      new Date(p.fecha).toDateString() === hoy.toDateString()
-    );
-    this.stats.ventasHoy = pedidosHoy.reduce((sum, p) => sum + p.total, 0);
-    this.stats.pedidosHoy = pedidosHoy.length;
-
-    const pedidosSemana = this.pedidos.filter(p => new Date(p.fecha) >= inicioSemana);
-    this.stats.ventasSemana = pedidosSemana.reduce((sum, p) => sum + p.total, 0);
-    this.stats.pedidosSemana = pedidosSemana.length;
-
-    const pedidosMes = this.pedidos.filter(p => new Date(p.fecha) >= inicioMes);
-    this.stats.ventasMes = pedidosMes.reduce((sum, p) => sum + p.total, 0);
-    this.stats.pedidosMes = pedidosMes.length;
-  }
-
+  // ----------------------------------------------------------------
+  // UTILIDADES VISTA
+  // ----------------------------------------------------------------
   getEstadoClass(estado: string): string {
-    const clases = {
-      'Pendiente': 'px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-800',
-      'Procesando': 'px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800',
-      'Enviado': 'px-3 py-1 text-xs font-bold rounded-full bg-purple-100 text-purple-800',
-      'Entregado': 'px-3 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800',
-      'Cancelado': 'px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800'
+    const m: Record<string, string> = {
+      pending:    'px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-800',
+      processing: 'px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800',
+      shipped:    'px-3 py-1 text-xs font-bold rounded-full bg-purple-100 text-purple-800',
+      delivered:  'px-3 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800',
+      cancelled:  'px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800',
     };
-    return clases[estado as keyof typeof clases] || '';
+    return m[estado?.toLowerCase()] || 'px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-gray-800';
   }
 
   getEstadoSelectClass(estado: string): string {
-    const clases = {
-      'Pendiente': 'bg-yellow-100 text-yellow-800',
-      'Procesando': 'bg-blue-100 text-blue-800',
-      'Enviado': 'bg-purple-100 text-purple-800',
-      'Entregado': 'bg-green-100 text-green-800',
-      'Cancelado': 'bg-red-100 text-red-800'
+    const m: Record<string, string> = {
+      pending: 'bg-yellow-100 text-yellow-800', processing: 'bg-blue-100 text-blue-800',
+      shipped: 'bg-purple-100 text-purple-800', delivered: 'bg-green-100 text-green-800',
+      cancelled: 'bg-red-100 text-red-800',
     };
-    return clases[estado as keyof typeof clases] || '';
-  }
-
-  cargarDatosSimulados() {
-    const hoy = new Date();
-    const hace1Dia = new Date(hoy); hace1Dia.setDate(hoy.getDate() - 1);
-    const hace3Dias = new Date(hoy); hace3Dias.setDate(hoy.getDate() - 3);
-    const hace7Dias = new Date(hoy); hace7Dias.setDate(hoy.getDate() - 7);
-    const hace15Dias = new Date(hoy); hace15Dias.setDate(hoy.getDate() - 15);
-    const hace30Dias = new Date(hoy); hace30Dias.setDate(hoy.getDate() - 30);
-
-    this.pedidos = [
-      { id: 1001, cliente: 'María García', email: 'maria@email.com', direccion: 'Calle Reforma 123, Puebla, PUE', fecha: hoy, total: 1250, estado: 'Pendiente', items: [] },
-      { id: 1002, cliente: 'Juan Pérez', email: 'juan@email.com', direccion: 'Av. Juárez 456, Cholula, PUE', fecha: hoy, total: 890, estado: 'Procesando', items: [] },
-      { id: 1003, cliente: 'Ana López', email: 'ana@email.com', direccion: 'Calle Hidalgo 789, Puebla, PUE', fecha: hace1Dia, total: 2100, estado: 'Enviado', items: [] },
-      { id: 1004, cliente: 'Carlos Ruiz', email: 'carlos@email.com', direccion: 'Av. 5 de Mayo 321, Atlixco, PUE', fecha: hace3Dias, total: 750, estado: 'Entregado', items: [] },
-      { id: 1005, cliente: 'Laura Martínez', email: 'laura@email.com', direccion: 'Calle Morelos 654, Puebla, PUE', fecha: hace3Dias, total: 1580, estado: 'Pendiente', items: [] },
-      { id: 1006, cliente: 'Pedro Sánchez', email: 'pedro@email.com', direccion: 'Av. Universidad 987, Cholula, PUE', fecha: hace7Dias, total: 920, estado: 'Entregado', items: [] },
-      { id: 1007, cliente: 'Sofía Hernández', email: 'sofia@email.com', direccion: 'Calle Independencia 147, Puebla, PUE', fecha: hace7Dias, total: 1450, estado: 'Cancelado', items: [] },
-      { id: 1008, cliente: 'Miguel Torres', email: 'miguel@email.com', direccion: 'Av. Reforma 258, Atlixco, PUE', fecha: hace15Dias, total: 680, estado: 'Entregado', items: [] },
-      { id: 1009, cliente: 'Elena Flores', email: 'elena@email.com', direccion: 'Calle Constitución 369, Puebla, PUE', fecha: hace15Dias, total: 1920, estado: 'Entregado', items: [] },
-      { id: 1010, cliente: 'Roberto Díaz', email: 'roberto@email.com', direccion: 'Av. Juárez 741, Cholula, PUE', fecha: hace30Dias, total: 1100, estado: 'Entregado', items: [] }
-    ];
-
-    this.usuarios = [
-      { id: 1, nombre: 'María García', email: 'maria@email.com', fechaRegistro: hace30Dias, totalPedidos: 3, totalGastado: 3250 },
-      { id: 2, nombre: 'Juan Pérez', email: 'juan@email.com', fechaRegistro: hace30Dias, totalPedidos: 5, totalGastado: 4890 },
-      { id: 3, nombre: 'Ana López', email: 'ana@email.com', fechaRegistro: hace15Dias, totalPedidos: 2, totalGastado: 2850 },
-      { id: 4, nombre: 'Carlos Ruiz', email: 'carlos@email.com', fechaRegistro: hace15Dias, totalPedidos: 1, totalGastado: 750 },
-      { id: 5, nombre: 'Laura Martínez', email: 'laura@email.com', fechaRegistro: hace7Dias, totalPedidos: 2, totalGastado: 2480 },
-      { id: 6, nombre: 'Pedro Sánchez', email: 'pedro@email.com', fechaRegistro: hace7Dias, totalPedidos: 1, totalGastado: 920 }
-    ];
-
-    this.productos = [
-      { id: 1, nombre: 'Blusa Bordada Rosa Mexicano', descripcion: 'Bordado a mano', precio: 450, stock: 12, categoria: 'Blusas', imagenes: ['https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800'], tallas: ['S', 'M', 'L'] },
-      { id: 2, nombre: 'Rebozo Tradicional Multicolor', descripcion: 'Tejido a mano', precio: 580, stock: 8, categoria: 'Rebozos', imagenes: ['https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=800'], tallas: ['Única'] },
-      { id: 3, nombre: 'Vestido Chilac Flores', descripcion: 'Bordado artesanal', precio: 890, stock: 3, categoria: 'Vestidos', imagenes: ['https://images.unsplash.com/photo-1606103920295-9a091573f160?q=80&w=800'], tallas: ['M', 'L', 'XL'] }
-    ];
+    return m[estado?.toLowerCase()] || 'bg-gray-100 text-gray-800';
   }
 }

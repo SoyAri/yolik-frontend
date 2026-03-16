@@ -1,46 +1,26 @@
 <!-- PANEL DE ADMINISTRACIÓN YOLIK -->
+@if (!cargandoAdmin) {
 <div class="min-h-screen bg-gray-50">
 
   <!-- Top Bar -->
   <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-50">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-black text-[#D11C5E] uppercase tracking-tight">
-          Panel YOLIK
-        </h1>
+        <h1 class="text-2xl font-black text-[#D11C5E] uppercase tracking-tight">Panel YOLIK</h1>
         <p class="text-xs text-gray-500 uppercase tracking-wide">Administración</p>
       </div>
-
-      <!-- Switch de vistas -->
       <div class="flex gap-2 bg-gray-100 rounded-lg p-1">
-        <button
-          (click)="vistaActual = 'stats'"
+        <button (click)="vistaActual = 'stats'"
           [class]="vistaActual === 'stats' ? 'bg-[#D11C5E] text-white' : 'text-gray-600 hover:text-gray-900'"
-          class="px-4 py-2 rounded-md font-medium text-sm transition-all">
-          Stats
-        </button>
-        <button
-          (click)="vistaActual = 'pedidos'"
+          class="px-4 py-2 rounded-md font-medium text-sm transition-all">Stats</button>
+        <button (click)="vistaActual = 'pedidos'"
           [class]="vistaActual === 'pedidos' ? 'bg-[#D11C5E] text-white' : 'text-gray-600 hover:text-gray-900'"
-          class="px-4 py-2 rounded-md font-medium text-sm transition-all">
-          Pedidos
-        </button>
-        <button
-          (click)="vistaActual = 'usuarios'"
-          [class]="vistaActual === 'usuarios' ? 'bg-[#D11C5E] text-white' : 'text-gray-600 hover:text-gray-900'"
-          class="px-4 py-2 rounded-md font-medium text-sm transition-all">
-          Usuarios
-        </button>
-        <button
-          (click)="vistaActual = 'productos'"
+          class="px-4 py-2 rounded-md font-medium text-sm transition-all">Pedidos</button>
+        <button (click)="vistaActual = 'productos'"
           [class]="vistaActual === 'productos' ? 'bg-[#D11C5E] text-white' : 'text-gray-600 hover:text-gray-900'"
-          class="px-4 py-2 rounded-md font-medium text-sm transition-all">
-          Productos
-        </button>
+          class="px-4 py-2 rounded-md font-medium text-sm transition-all">Productos</button>
       </div>
-
-      <div class="flex items-center gap-3">
-      </div>
+      <div></div>
     </div>
   </header>
 
@@ -49,155 +29,100 @@
     <!-- ======================== VISTA STATS ======================== -->
     @if (vistaActual === 'stats') {
       <div class="max-w-7xl mx-auto">
-
-        <!-- Stats principales -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-gray-600 uppercase">Total Ventas</span>
+              <span class="text-sm font-medium text-gray-600 uppercase">Total Ingresos</span>
               <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <div class="text-3xl font-black text-gray-900">${{ stats.ventasTotales | number:'1.2-2' }}</div>
-            <div class="text-xs text-gray-500 mt-1">MXN</div>
+            <div class="text-xs text-gray-500 mt-1">MXN (Excl. Cancelados)</div>
           </div>
-
           <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-gray-600 uppercase">Pedidos</span>
+              <span class="text-sm font-medium text-gray-600 uppercase">Pedidos Emitidos</span>
               <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
               </svg>
             </div>
             <div class="text-3xl font-black text-gray-900">{{ stats.totalPedidos }}</div>
-            <div class="text-xs text-gray-500 mt-1">Total histórico</div>
+            <div class="text-xs text-gray-500 mt-1">Últimos 30 días</div>
           </div>
-
-          <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-gray-600 uppercase">Usuarios</span>
-              <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-              </svg>
-            </div>
-            <div class="text-3xl font-black text-gray-900">{{ stats.totalUsuarios }}</div>
-            <div class="text-xs text-gray-500 mt-1">Registrados</div>
-          </div>
-
           <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-medium text-gray-600 uppercase">Pendientes</span>
               <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <div class="text-3xl font-black text-gray-900">{{ stats.pedidosPendientes }}</div>
-            <div class="text-xs text-gray-500 mt-1">Por procesar</div>
+            <div class="text-xs text-gray-500 mt-1">Por Despachar</div>
           </div>
         </div>
 
-        <!-- Ventas por período -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <h3 class="text-sm font-bold text-gray-600 uppercase mb-4">Hoy</h3>
-            <div class="text-2xl font-black text-[#D11C5E]">${{ stats.ventasHoy | number:'1.2-2' }}</div>
-            <div class="text-xs text-gray-500 mt-1">{{ stats.pedidosHoy }} pedidos</div>
-          </div>
-
-          <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <h3 class="text-sm font-bold text-gray-600 uppercase mb-4">Esta Semana</h3>
-            <div class="text-2xl font-black text-[#D11C5E]">${{ stats.ventasSemana | number:'1.2-2' }}</div>
-            <div class="text-xs text-gray-500 mt-1">{{ stats.pedidosSemana }} pedidos</div>
-          </div>
-
-          <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <h3 class="text-sm font-bold text-gray-600 uppercase mb-4">Este Mes</h3>
-            <div class="text-2xl font-black text-[#D11C5E]">${{ stats.ventasMes | number:'1.2-2' }}</div>
-            <div class="text-xs text-gray-500 mt-1">{{ stats.pedidosMes }} pedidos</div>
-          </div>
-        </div>
-
-        <!-- Últimos pedidos -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-bold text-gray-900">Últimos Pedidos</h3>
+            <h3 class="text-lg font-bold text-gray-900">Pedidos Recientes</h3>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">ID</th>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Cliente</th>
+                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Orden</th>
                   <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Fecha</th>
                   <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Total</th>
+                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Pago</th>
                   <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Estado</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
                 @for (pedido of pedidos.slice(0, 5); track pedido.id) {
                   <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#{{ pedido.id }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ pedido.cliente }}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#{{ pedido.orderNumber || pedido.id | slice:0:8 }}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">{{ pedido.fecha | date:'short' }}</td>
                     <td class="px-6 py-4 text-sm font-bold text-gray-900">${{ pedido.total | number:'1.2-2' }}</td>
-                    <td class="px-6 py-4">
-                      <span [class]="getEstadoClass(pedido.estado)">
-                        {{ pedido.estado }}
-                      </span>
-                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600 uppercase">{{ pedido.paymentStatus || 'unknown' }}</td>
+                    <td class="px-6 py-4"><span [class]="getEstadoClass(pedido.estado)">{{ pedido.estado }}</span></td>
                   </tr>
+                } @empty {
+                  <tr><td colspan="5" class="px-6 py-6 text-center text-gray-500 text-sm">No hay pedidos recientes.</td></tr>
                 }
               </tbody>
             </table>
           </div>
         </div>
-
       </div>
     }
 
     <!-- ======================== VISTA PEDIDOS ======================== -->
     @if (vistaActual === 'pedidos') {
       <div class="max-w-7xl mx-auto">
-
-        <!-- Filtros -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
           <div class="flex flex-wrap items-center gap-4">
-            <input
-              type="text"
-              [(ngModel)]="filtroPedidos"
-              placeholder="Buscar por ID, cliente o correo..."
+            <input type="text" [(ngModel)]="filtroPedidos" placeholder="Buscar por Orden o Cliente..."
               class="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
-
-            <select
-              [(ngModel)]="filtroEstado"
+            <select [(ngModel)]="filtroEstado"
               class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
               <option value="">Todos los estados</option>
-              <option value="Pendiente">Pendiente</option>
-              <option value="Procesando">Procesando</option>
-              <option value="Enviado">Enviado</option>
-              <option value="Entregado">Entregado</option>
-              <option value="Cancelado">Cancelado</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
             </select>
-
-            <button
-              (click)="limpiarFiltros()"
-              class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">
-              Limpiar
-            </button>
+            <button (click)="limpiarFiltros()" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">Limpiar</button>
           </div>
         </div>
 
-        <!-- Tabla de pedidos -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Orden</th>
                   <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Cliente</th>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Correo</th>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Dirección</th>
                   <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Fecha</th>
                   <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Total</th>
                   <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Estado</th>
@@ -207,320 +132,364 @@
               <tbody class="divide-y divide-gray-200">
                 @for (pedido of getPedidosFiltrados(); track pedido.id) {
                   <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#{{ pedido.id }}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#{{ pedido.orderNumber || pedido.id | slice:0:8 }}</td>
                     <td class="px-6 py-4 text-sm text-gray-700">{{ pedido.cliente }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ pedido.email }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{{ pedido.direccion }}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">{{ pedido.fecha | date:'short' }}</td>
                     <td class="px-6 py-4 text-sm font-bold text-gray-900">${{ pedido.total | number:'1.2-2' }}</td>
                     <td class="px-6 py-4">
-                      <select
-                        [(ngModel)]="pedido.estado"
-                        (change)="actualizarEstadoPedido(pedido)"
+                      <select [(ngModel)]="pedido.estado" (change)="actualizarEstadoPedido(pedido)"
                         [class]="getEstadoSelectClass(pedido.estado)"
-                        class="text-xs font-bold px-3 py-1 rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Procesando">Procesando</option>
-                        <option value="Enviado">Enviado</option>
-                        <option value="Entregado">Entregado</option>
-                        <option value="Cancelado">Cancelado</option>
+                        class="text-xs font-bold px-3 py-1 rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-[#D11C5E] uppercase tracking-wider">
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
                       </select>
                     </td>
                     <td class="px-6 py-4">
-                      <button
-                        (click)="verDetallePedido(pedido)"
-                        class="text-[#D11C5E] hover:text-[#E63E6D] font-medium text-sm">
-                        Ver detalle
-                      </button>
+                      <button (click)="verDetallePedido(pedido)" class="text-[#D11C5E] hover:text-[#E63E6D] font-medium text-sm">Ver detalle</button>
                     </td>
                   </tr>
                 } @empty {
-                  <tr>
-                    <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                      No hay pedidos que coincidan con los filtros
-                    </td>
-                  </tr>
+                  <tr><td colspan="6" class="px-6 py-12 text-center text-gray-500">No hay pedidos que coincidan.</td></tr>
                 }
               </tbody>
             </table>
           </div>
         </div>
-
-      </div>
-    }
-
-    <!-- ======================== VISTA USUARIOS ======================== -->
-    @if (vistaActual === 'usuarios') {
-      <div class="max-w-7xl mx-auto">
-
-        <!-- Filtros -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div class="flex flex-wrap items-center gap-4">
-            <input
-              type="text"
-              [(ngModel)]="filtroUsuarios"
-              placeholder="Buscar por nombre o correo..."
-              class="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
-
-            <button
-              (click)="limpiarFiltrosUsuarios()"
-              class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">
-              Limpiar
-            </button>
-          </div>
-        </div>
-
-        <!-- Tabla de usuarios -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">ID</th>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Nombre</th>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Correo</th>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Fecha Registro</th>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Pedidos</th>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Total Gastado</th>
-                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Acciones</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                @for (usuario of getUsuariosFiltrados(); track usuario.id) {
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#{{ usuario.id }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ usuario.nombre }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ usuario.email }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ usuario.fechaRegistro | date:'short' }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ usuario.totalPedidos }}</td>
-                    <td class="px-6 py-4 text-sm font-bold text-gray-900">${{ usuario.totalGastado | number:'1.2-2' }}</td>
-                    <td class="px-6 py-4">
-                      <button
-                        (click)="verDetalleUsuario(usuario)"
-                        class="text-[#D11C5E] hover:text-[#E63E6D] font-medium text-sm mr-3">
-                        Ver
-                      </button>
-                      <button
-                        (click)="eliminarUsuario(usuario)"
-                        class="text-red-600 hover:text-red-800 font-medium text-sm">
-                        Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr>
-                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                      No hay usuarios que coincidan con los filtros
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
     }
 
     <!-- ======================== VISTA PRODUCTOS ======================== -->
     @if (vistaActual === 'productos') {
-      <div class="max-w-7xl mx-auto">
+      <div class="max-w-7xl mx-auto space-y-6">
 
-        <!-- Formulario de nuevo producto -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6">Registrar Nuevo Producto</h2>
+        <!-- ── FORMULARIO COLAPSABLE ── -->
+        <div id="form-producto" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
-          <form (ngSubmit)="guardarProducto()" #productoForm="ngForm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              <!-- Nombre -->
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                  Nombre del Producto
-                </label>
-                <input
-                  type="text"
-                  name="nombre"
-                  [(ngModel)]="nuevoProducto.nombre"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
-                  placeholder="Ej. Blusa Bordada Rosa"
-                  required>
-              </div>
-
-              <!-- Precio -->
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                  Precio (MXN)
-                </label>
-                <input
-                  type="number"
-                  name="precio"
-                  [(ngModel)]="nuevoProducto.precio"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
-                  placeholder="450.00"
-                  step="0.01"
-                  required>
-              </div>
-
-              <!-- Descripción -->
-              <div class="md:col-span-2">
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                  Descripción
-                </label>
-                <textarea
-                  name="descripcion"
-                  [(ngModel)]="nuevoProducto.descripcion"
-                  rows="3"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
-                  placeholder="Describe el producto..."
-                  required></textarea>
-              </div>
-
-              <!-- Stock -->
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                  Stock Inicial
-                </label>
-                <input
-                  type="number"
-                  name="stock"
-                  [(ngModel)]="nuevoProducto.stock"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
-                  placeholder="10"
-                  required>
-              </div>
-
-              <!-- Categoría -->
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                  Categoría
-                </label>
-                <select
-                  name="categoria"
-                  [(ngModel)]="nuevoProducto.categoria"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
-                  required>
-                  <option value="">Selecciona una categoría</option>
-                  <option value="Blusas">Blusas</option>
-                  <option value="Vestidos">Vestidos</option>
-                  <option value="Rebozos">Rebozos</option>
-                  <option value="Faldas">Faldas</option>
-                  <option value="Accesorios">Accesorios</option>
-                </select>
-              </div>
-
-              <!-- Tallas Disponibles -->
-              <div class="md:col-span-2">
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                  Tallas Disponibles
-                </label>
-                <div class="flex flex-wrap gap-3">
-                  @for (talla of tallasDisponibles; track talla) {
-                    <label
-                      class="flex items-center gap-2 px-4 py-2 border-2 rounded-lg cursor-pointer transition-all
-                        font-bold text-sm
-                        [nuevoProducto.tallas.includes(talla) ? 'border-[#D11C5E] bg-[#D11C5E] text-white' : 'border-gray-300 bg-gray-100 text-gray-700']"
-                      [class.border-[#D11C5E]]="nuevoProducto.tallas.includes(talla)"
-                      [class.bg-[#D11C5E]]="nuevoProducto.tallas.includes(talla)"
-                      [class.text-white]="nuevoProducto.tallas.includes(talla)"
-                      [class.border-gray-300]="!nuevoProducto.tallas.includes(talla)"
-                      [class.bg-gray-100]="!nuevoProducto.tallas.includes(talla)"
-                      [class.text-gray-700]="!nuevoProducto.tallas.includes(talla)"
-                    >
-                      <input
-                        type="checkbox"
-                        [value]="talla"
-                        (change)="toggleTalla(talla)"
-                        [checked]="nuevoProducto.tallas.includes(talla)"
-                        class="hidden">
-                      <span>{{ talla }}</span>
-                    </label>
-                  }
+          <!-- Header colapsable: siempre visible -->
+          <button type="button" (click)="formularioAbierto = !formularioAbierto"
+            class="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition-colors group">
+            <div class="flex items-center gap-3">
+              <!-- Ícono que cambia según estado -->
+              @if (nuevoProducto._id) {
+                <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">Selecciona las tallas disponibles para este producto</p>
+              } @else {
+                <div class="w-9 h-9 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-[#D11C5E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                </div>
+              }
+              <div>
+                <h2 class="text-base font-bold text-gray-900">
+                  {{ nuevoProducto._id ? 'Editando: ' + nuevoProducto.name : 'Agregar nuevo producto' }}
+                </h2>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  {{ formularioAbierto ? 'Clic para colapsar' : (nuevoProducto._id ? 'Formulario de edición' : 'Haz clic para desplegar el formulario') }}
+                </p>
               </div>
+            </div>
 
-              <!-- URLs de Imágenes -->
-              <div class="md:col-span-2">
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                  Imágenes del Producto
-                </label>
+            <!-- Chevron animado -->
+            <svg class="w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0"
+              [class.rotate-180]="formularioAbierto"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
 
-                <!-- Lista de imágenes -->
-                <div class="space-y-3 mb-3">
-                  @for (imagen of nuevoProducto.imagenes; track $index) {
-                    <div class="flex gap-2">
-                      <input
-                        type="url"
-                        [(ngModel)]="nuevoProducto.imagenes[$index]"
-                        [name]="'imagen' + $index"
-                        class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
-                        placeholder="https://example.com/imagen.jpg"
-                        required>
+          <!-- Cuerpo del formulario -->
+          @if (formularioAbierto) {
+            <div class="border-t border-gray-200 px-6 pb-8 pt-6">
+              <form (ngSubmit)="guardarProducto()" #productoForm="ngForm" novalidate>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                      @if (nuevoProducto.imagenes.length > 1) {
-                        <button
-                          type="button"
-                          (click)="eliminarImagen($index)"
-                          class="px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                          <i class="fa-solid fa-trash"></i>
-                        </button>
+                  <!-- Nombre -->
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Nombre del Producto</label>
+                    <input type="text" name="name" [(ngModel)]="nuevoProducto.name" #nameCtrl="ngModel"
+                      minlength="3" maxlength="200" required
+                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
+                      [class.border-red-400]="nameCtrl.invalid && formSubmitIntentado"
+                      [class.border-gray-300]="!nameCtrl.invalid || !formSubmitIntentado"
+                      placeholder="Ej. Blusa Bordada Rosa">
+                    @if (nameCtrl.invalid && formSubmitIntentado) {
+                      <p class="text-red-500 text-xs mt-1 font-medium">Nombre obligatorio (3–200 caracteres).</p>
+                    }
+                  </div>
+
+                  <!-- Precio -->
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Precio (MXN)</label>
+                    <input type="number" name="price" [(ngModel)]="nuevoProducto.price" #priceCtrl="ngModel"
+                      min="0" step="0.01" required
+                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
+                      [class.border-red-400]="priceCtrl.invalid && formSubmitIntentado"
+                      [class.border-gray-300]="!priceCtrl.invalid || !formSubmitIntentado"
+                      placeholder="450.00">
+                    @if (priceCtrl.invalid && formSubmitIntentado) {
+                      <p class="text-red-500 text-xs mt-1 font-medium">Precio obligatorio y no negativo.</p>
+                    }
+                  </div>
+
+                  <!-- Precio Original -->
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
+                      Precio Original <span class="text-gray-400 font-normal normal-case">(opcional, para descuentos)</span>
+                    </label>
+                    <input type="number" name="originalPrice" [(ngModel)]="nuevoProducto.originalPrice"
+                      #origCtrl="ngModel" min="0" step="0.01"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
+                      placeholder="500.00">
+                  </div>
+
+                  <!-- Stock -->
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Stock</label>
+                    <input type="number" name="stock" [(ngModel)]="nuevoProducto.stock" #stockCtrl="ngModel"
+                      min="0" required
+                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
+                      [class.border-red-400]="stockCtrl.invalid && formSubmitIntentado"
+                      [class.border-gray-300]="!stockCtrl.invalid || !formSubmitIntentado"
+                      placeholder="10">
+                    @if (stockCtrl.invalid && formSubmitIntentado) {
+                      <p class="text-red-500 text-xs mt-1 font-medium">Stock obligatorio y no negativo.</p>
+                    }
+                  </div>
+
+                  <!-- Categoría -->
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Categoría</label>
+                    <select name="category" [(ngModel)]="nuevoProducto.category" #catCtrl="ngModel" required
+                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
+                      [class.border-red-400]="catCtrl.invalid && formSubmitIntentado"
+                      [class.border-gray-300]="!catCtrl.invalid || !formSubmitIntentado">
+                      <option value="Vestidos">Vestidos</option>
+                      <option value="Blusas">Blusas</option>
+                      <option value="Accesorios">Accesorios</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                  </div>
+
+                  <!-- Región -->
+                  <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Región</label>
+                    <select name="region" [(ngModel)]="nuevoProducto.region" #regCtrl="ngModel" required
+                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
+                      [class.border-red-400]="regCtrl.invalid && formSubmitIntentado"
+                      [class.border-gray-300]="!regCtrl.invalid || !formSubmitIntentado">
+                      <option value="Tehuacan">Tehuacan</option>
+                      <option value="otro">Otro</option>
+                    </select>
+                  </div>
+
+                  <!-- Descripción -->
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Descripción</label>
+                    <textarea name="description" [(ngModel)]="nuevoProducto.description" #descCtrl="ngModel"
+                      minlength="10" maxlength="5000" rows="3" required
+                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
+                      [class.border-red-400]="descCtrl.invalid && formSubmitIntentado"
+                      [class.border-gray-300]="!descCtrl.invalid || !formSubmitIntentado"
+                      placeholder="Describe el producto..."></textarea>
+                    @if (descCtrl.invalid && formSubmitIntentado) {
+                      <p class="text-red-500 text-xs mt-1 font-medium">Descripción obligatoria (mínimo 10 caracteres).</p>
+                    }
+                  </div>
+
+                  <!-- Imágenes -->
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
+                      Imágenes <span class="text-gray-400 font-normal normal-case">(URLs completas https://...)</span>
+                    </label>
+                    <div class="space-y-3 mb-3">
+                      @for (imagen of nuevoProducto.images; track trackByIndex($index)) {
+                        <div class="flex gap-2">
+                          <input type="url" [(ngModel)]="nuevoProducto.images[$index]"
+                            [name]="'image' + $index" #imgCtrl="ngModel"
+                            pattern="^https?://.+" required
+                            class="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
+                            [class.border-red-400]="imgCtrl.invalid && formSubmitIntentado"
+                            [class.border-gray-300]="!imgCtrl.invalid || !formSubmitIntentado"
+                            placeholder="https://example.com/imagen.jpg">
+                          @if (nuevoProducto.images.length > 1) {
+                            <button type="button" (click)="eliminarImagen($index)"
+                              class="px-4 py-3 bg-red-50 text-red-500 border border-red-200 rounded-lg hover:bg-red-500 hover:text-white transition-colors">
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                              </svg>
+                            </button>
+                          }
+                        </div>
                       }
                     </div>
-                  }
+                    <button type="button" (click)="agregarImagen()"
+                      class="w-full px-4 py-3 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-[#D11C5E] hover:text-[#D11C5E] transition-all font-medium text-sm flex items-center justify-center gap-2">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                      </svg>
+                      Agregar imagen
+                    </button>
+                  </div>
+
                 </div>
 
-                <!-- Botón agregar imagen -->
-                <button
-                  type="button"
-                  (click)="agregarImagen()"
-                  class="w-full px-4 py-3 border-2 border-dashed border-[#D11C5E] text-[#D11C5E] rounded-lg hover:bg-[#D11C5E] hover:text-white transition-all font-bold">
-                  <i class="fa-solid fa-plus mr-2"></i>
-                  Agregar otra imagen
-                </button>
-                <p class="text-xs text-gray-500 mt-2">Ingresa las URLs de las imágenes del producto</p>
-              </div>
+                <!-- Acciones -->
+                <div class="flex flex-wrap items-center gap-3 mt-8 pt-6 border-t border-gray-100">
+                  <button type="submit" [disabled]="isLoadingProducto"
+                    class="px-7 py-3 bg-[#D11C5E] text-white font-bold rounded-lg hover:bg-[#E63E6D] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 text-sm uppercase tracking-wide">
+                    @if (isLoadingProducto) {
+                      <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                      </svg>
+                      Guardando...
+                    } @else {
+                      {{ nuevoProducto._id ? 'Actualizar producto' : 'Guardar producto' }}
+                    }
+                  </button>
 
+                  <button type="button" (click)="cerrarFormulario()"
+                    class="px-5 py-3 border border-gray-300 text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-all text-sm">
+                    Cancelar
+                  </button>
+                </div>
+
+              </form>
             </div>
-
-            <!-- Botones -->
-            <div class="flex items-center gap-4 mt-8">
-              <button
-                type="submit"
-                [disabled]="!productoForm.form.valid || isLoadingProducto"
-                class="px-6 py-3 bg-[#D11C5E] text-white font-bold uppercase rounded-lg hover:bg-[#E63E6D] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                @if (isLoadingProducto) {
-                  <span class="flex items-center gap-2">
-                    <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Guardando...
-                  </span>
-                } @else {
-                  <span>Guardar Producto</span>
-                }
-              </button>
-
-              <button
-                type="button"
-                (click)="limpiarFormularioProducto()"
-                class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-all">
-                Limpiar
-              </button>
-            </div>
-
-            <!-- Mensaje de éxito -->
-            @if (mensajeProducto) {
-              <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p class="text-green-600 text-sm">{{ mensajeProducto }}</p>
-              </div>
-            }
-          </form>
+          }
         </div>
+
+        <!-- ── LISTADO DE PRODUCTOS ── -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-base font-bold text-gray-900">Catálogo de Productos
+              <span class="ml-2 text-xs font-normal text-gray-400">({{ productos.length }} productos)</span>
+            </h3>
+            <button type="button" (click)="abrirFormularioNuevo()"
+              class="px-4 py-2 bg-[#D11C5E] text-white text-sm font-bold rounded-lg hover:bg-[#E63E6D] transition-all flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+              </svg>
+              Nuevo producto
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Imagen</th>
+                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Nombre</th>
+                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Cat.</th>
+                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Stock</th>
+                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Precio</th>
+                  <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                @for (prod of productos; track prod._id) {
+                  <tr class="hover:bg-gray-50 transition-colors" [class.bg-blue-50]="nuevoProducto._id === prod._id">
+                    <td class="px-6 py-4">
+                      <img [src]="prod.images[0]" alt="" class="w-12 h-12 rounded-lg object-cover border border-gray-200">
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                      {{ prod.name }}
+                      @if (nuevoProducto._id === prod._id) {
+                        <span class="ml-2 text-xs text-blue-500 font-bold bg-blue-100 px-2 py-0.5 rounded-full">editando</span>
+                      }
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ prod.category }}</td>
+                    <td class="px-6 py-4 text-sm font-bold" [ngClass]="prod.stock <= 5 ? 'text-red-500' : 'text-gray-900'">
+                      {{ prod.stock }}
+                      @if (prod.stock === 0) { <span class="ml-1 text-xs">⚠</span> }
+                    </td>
+                    <td class="px-6 py-4 text-sm font-bold text-[#D11C5E]">${{ prod.price | number:'1.2-2' }}</td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-3">
+                        <button (click)="editarProducto(prod)"
+                          class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                          </svg>
+                          Editar
+                        </button>
+                        <button (click)="eliminarProducto(prod)"
+                          class="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1 transition-colors">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                          </svg>
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="6" class="px-6 py-12 text-center text-gray-400 text-sm">Ningún producto en base de datos.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     }
 
   </main>
 
+  <!-- ================================================================
+       TOAST — siempre en el DOM, visible/oculto por opacidad + translate
+       Así Angular no necesita crear/destruir el nodo, solo cambia clases.
+  ================================================================ -->
+  <div
+    class="fixed bottom-6 right-6 z-[9999] flex items-start gap-3 px-5 py-4 rounded-xl shadow-2xl max-w-xs w-full border transition-all duration-300"
+    [class.opacity-0]="!toastVisible"
+    [class.pointer-events-none]="!toastVisible"
+    [class.translate-y-4]="!toastVisible"
+    [class.opacity-100]="toastVisible"
+    [class.translate-y-0]="toastVisible"
+    [class.bg-green-50]="toastExito"
+    [class.border-green-300]="toastExito"
+    [class.text-green-800]="toastExito"
+    [class.bg-red-50]="!toastExito"
+    [class.border-red-300]="!toastExito"
+    [class.text-red-800]="!toastExito">
+
+    <!-- Ícono éxito -->
+    @if (toastExito) {
+      <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+    } @else {
+      <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+    }
+
+    <p class="font-semibold text-sm leading-snug flex-1 pt-1">{{ toastMensaje }}</p>
+
+    <button (click)="cerrarToast()" class="opacity-50 hover:opacity-100 transition-opacity pt-0.5 flex-shrink-0">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
 </div>
+} @else {
+  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="flex flex-col items-center">
+      <div class="w-12 h-12 border-4 border-[#D11C5E] border-t-transparent rounded-full animate-spin"></div>
+      <p class="mt-4 text-gray-500 font-bold uppercase tracking-widest text-sm">Validando Acceso...</p>
+    </div>
+  </div>
+}
