@@ -16,7 +16,7 @@ interface Pedido {
   direccion?: string;
   fecha: Date | string;
   total: number;
-  estado: string;
+  estado: 'Procesando' | 'En camino' | 'Entregado' | 'Cancelado';
   paymentStatus?: string;
   items: any[];
 }
@@ -66,12 +66,12 @@ export class Administracion implements OnInit {
 
   // UI state
   isLoadingProducto = false;
-  formularioAbierto = false;   // <-- colapsable
-  formSubmitIntentado = false; // <-- para no mostrar errores hasta que intenten guardar
+  formularioAbierto = false;
+  formSubmitIntentado = false;
 
-  // Toast — siempre en el DOM, oculto/visible por clase CSS
+  // Toast
   toastMensaje = '';
-  toastExito = true; // true = verde, false = rojo
+  toastExito = true;
   toastVisible = false;
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -121,7 +121,7 @@ export class Administracion implements OnInit {
   }
 
   // ----------------------------------------------------------------
-  // TOAST — siempre en DOM, visible/oculto via clase. Garantiza render.
+  // TOAST
   // ----------------------------------------------------------------
   mostrarToast(mensaje: string, exito: boolean, duracionMs = 4500) {
     if (this.toastTimer) { clearTimeout(this.toastTimer); this.toastTimer = null; }
@@ -179,13 +179,15 @@ export class Administracion implements OnInit {
         if (res?.metrics) {
           this.stats.ventasTotales = res.metrics.grossRevenue || 0;
           this.stats.totalPedidos = res.metrics.orders || 0;
-          const pending = res.orderStatus?.find((s: any) => s.status === 'pending');
+          // ✅ CORREGIDO: busca por el valor en español que usa el modelo
+          const pending = res.orderStatus?.find((s: any) => s.status === 'Procesando');
           this.stats.pedidosPendientes = pending?.count || 0;
         }
         if (res?.recentOrders) {
           this.pedidos = res.recentOrders.map((o: any) => ({
             id: o._id, orderNumber: o.orderNumber,
-            cliente: o.userId?.name || 'Cliente Oculto',
+            // ✅ CORREGIDO: usa userEmail guardado en la orden
+            cliente: o.userEmail || o.userId || 'Sin datos',
             fecha: o.createdAt, total: o.total,
             estado: o.status, paymentStatus: o.paymentStatus, items: []
           }));
@@ -237,8 +239,21 @@ export class Administracion implements OnInit {
     return r;
   }
 
+  // ✅ CORREGIDO: ahora hace el PATCH real al backend
   actualizarEstadoPedido(pedido: Pedido) {
-    console.log('Actualizando estado (Simulado):', pedido.id, '->', pedido.estado);
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
+
+    this.http.patch(
+      `${this.apiUrl}/api/orders/${pedido.id}/status`,
+      { status: pedido.estado },
+      { headers }
+    ).subscribe({
+      next: () => this.mostrarToast(`✓ Pedido actualizado a "${pedido.estado}"`, true),
+      error: (err) => {
+        console.error('Error actualizando estado:', err);
+        this.mostrarToast('No se pudo actualizar el estado del pedido', false, 6000);
+      }
+    });
   }
 
   verDetallePedido(pedido: Pedido) {
@@ -259,7 +274,6 @@ export class Administracion implements OnInit {
   trackByIndex(index: number): number { return index; }
 
   guardarProducto() {
-    // Marcar que se intentó guardar (activa validaciones visuales)
     this.formSubmitIntentado = true;
     this.isLoadingProducto = true;
     this.cerrarToast();
@@ -357,23 +371,25 @@ export class Administracion implements OnInit {
   // ----------------------------------------------------------------
   // UTILIDADES VISTA
   // ----------------------------------------------------------------
+  // ✅ CORREGIDO: keys en español para que coincidan con el enum del modelo
   getEstadoClass(estado: string): string {
     const m: Record<string, string> = {
-      pending:    'px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-800',
-      processing: 'px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800',
-      shipped:    'px-3 py-1 text-xs font-bold rounded-full bg-purple-100 text-purple-800',
-      delivered:  'px-3 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800',
-      cancelled:  'px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800',
+      'Procesando': 'px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-800',
+      'En camino':  'px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800',
+      'Entregado':  'px-3 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800',
+      'Cancelado':  'px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800',
     };
-    return m[estado?.toLowerCase()] || 'px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-gray-800';
+    return m[estado] || 'px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-gray-800';
   }
 
+  // ✅ CORREGIDO: keys en español para que coincidan con el enum del modelo
   getEstadoSelectClass(estado: string): string {
     const m: Record<string, string> = {
-      pending: 'bg-yellow-100 text-yellow-800', processing: 'bg-blue-100 text-blue-800',
-      shipped: 'bg-purple-100 text-purple-800', delivered: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
+      'Procesando': 'bg-yellow-100 text-yellow-800',
+      'En camino':  'bg-blue-100 text-blue-800',
+      'Entregado':  'bg-green-100 text-green-800',
+      'Cancelado':  'bg-red-100 text-red-800',
     };
-    return m[estado?.toLowerCase()] || 'bg-gray-100 text-gray-800';
+    return m[estado] || 'bg-gray-100 text-gray-800';
   }
 }

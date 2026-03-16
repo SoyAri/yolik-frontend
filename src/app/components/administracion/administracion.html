@@ -106,11 +106,10 @@
             <select [(ngModel)]="filtroEstado"
               class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
               <option value="">Todos los estados</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="Procesando">Procesando</option>
+              <option value="En camino">En camino</option>
+              <option value="Entregado">Entregado</option>
+              <option value="Cancelado">Cancelado</option>
             </select>
             <button (click)="limpiarFiltros()" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">Limpiar</button>
           </div>
@@ -139,12 +138,11 @@
                     <td class="px-6 py-4">
                       <select [(ngModel)]="pedido.estado" (change)="actualizarEstadoPedido(pedido)"
                         [class]="getEstadoSelectClass(pedido.estado)"
-                        class="text-xs font-bold px-3 py-1 rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-[#D11C5E] uppercase tracking-wider">
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
+                        class="text-xs font-bold px-3 py-1 rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-[#D11C5E] tracking-wider">
+                        <option value="Procesando">Procesando</option>
+                        <option value="En camino">En camino</option>
+                        <option value="Entregado">Entregado</option>
+                        <option value="Cancelado">Cancelado</option>
                       </select>
                     </td>
                     <td class="px-6 py-4">
@@ -163,206 +161,170 @@
 
     <!-- ======================== VISTA PRODUCTOS ======================== -->
     @if (vistaActual === 'productos') {
-      <div class="max-w-7xl mx-auto space-y-6">
+      <div class="max-w-7xl mx-auto flex flex-col gap-6">
 
         <!-- ── FORMULARIO COLAPSABLE ── -->
         <div id="form-producto" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
-          <!-- Header colapsable: siempre visible -->
-          <button type="button" (click)="formularioAbierto = !formularioAbierto"
-            class="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition-colors group">
+          <!-- Cabecera siempre visible -->
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between cursor-pointer select-none"
+               (click)="formularioAbierto = !formularioAbierto">
+            <h3 class="text-base font-bold text-gray-900">
+              {{ nuevoProducto._id ? 'Editar producto' : 'Nuevo producto' }}
+            </h3>
             <div class="flex items-center gap-3">
-              <!-- Ícono que cambia según estado -->
               @if (nuevoProducto._id) {
-                <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                </div>
-              } @else {
-                <div class="w-9 h-9 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0">
-                  <svg class="w-5 h-5 text-[#D11C5E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                  </svg>
-                </div>
+                <span class="text-xs text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-full">editando</span>
               }
-              <div>
-                <h2 class="text-base font-bold text-gray-900">
-                  {{ nuevoProducto._id ? 'Editando: ' + nuevoProducto.name : 'Agregar nuevo producto' }}
-                </h2>
-                <p class="text-xs text-gray-500 mt-0.5">
-                  {{ formularioAbierto ? 'Clic para colapsar' : (nuevoProducto._id ? 'Formulario de edición' : 'Haz clic para desplegar el formulario') }}
-                </p>
-              </div>
+              <svg class="w-5 h-5 text-gray-400 transition-transform duration-200"
+                   [class.rotate-180]="formularioAbierto"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
             </div>
+          </div>
 
-            <!-- Chevron animado -->
-            <svg class="w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0"
-              [class.rotate-180]="formularioAbierto"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-
-          <!-- Cuerpo del formulario -->
+          <!-- Cuerpo colapsable -->
           @if (formularioAbierto) {
-            <div class="border-t border-gray-200 px-6 pb-8 pt-6">
-              <form (ngSubmit)="guardarProducto()" #productoForm="ngForm" novalidate>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form (ngSubmit)="guardarProducto()" #productoForm="ngForm" class="p-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                  <!-- Nombre -->
-                  <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Nombre del Producto</label>
-                    <input type="text" name="name" [(ngModel)]="nuevoProducto.name" #nameCtrl="ngModel"
-                      minlength="3" maxlength="200" required
-                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
-                      [class.border-red-400]="nameCtrl.invalid && formSubmitIntentado"
-                      [class.border-gray-300]="!nameCtrl.invalid || !formSubmitIntentado"
-                      placeholder="Ej. Blusa Bordada Rosa">
-                    @if (nameCtrl.invalid && formSubmitIntentado) {
-                      <p class="text-red-500 text-xs mt-1 font-medium">Nombre obligatorio (3–200 caracteres).</p>
-                    }
-                  </div>
+                <!-- Nombre -->
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Nombre <span class="text-red-500">*</span></label>
+                  <input type="text" name="name" [(ngModel)]="nuevoProducto.name" required minlength="3"
+                    #nameField="ngModel"
+                    class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
+                    [class.border-red-400]="formSubmitIntentado && nameField.invalid"
+                    [class.border-gray-300]="!(formSubmitIntentado && nameField.invalid)"
+                    placeholder="Ej. Vestido bordado de Chilac">
+                  @if (formSubmitIntentado && nameField.invalid) {
+                    <p class="text-xs text-red-500 mt-1">Mínimo 3 caracteres.</p>
+                  }
+                </div>
 
-                  <!-- Precio -->
-                  <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Precio (MXN)</label>
-                    <input type="number" name="price" [(ngModel)]="nuevoProducto.price" #priceCtrl="ngModel"
-                      min="0" step="0.01" required
-                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
-                      [class.border-red-400]="priceCtrl.invalid && formSubmitIntentado"
-                      [class.border-gray-300]="!priceCtrl.invalid || !formSubmitIntentado"
-                      placeholder="450.00">
-                    @if (priceCtrl.invalid && formSubmitIntentado) {
-                      <p class="text-red-500 text-xs mt-1 font-medium">Precio obligatorio y no negativo.</p>
-                    }
-                  </div>
+                <!-- Descripción -->
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Descripción <span class="text-red-500">*</span></label>
+                  <textarea name="description" [(ngModel)]="nuevoProducto.description" required minlength="10" rows="3"
+                    #descField="ngModel"
+                    class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E] resize-none"
+                    [class.border-red-400]="formSubmitIntentado && descField.invalid"
+                    [class.border-gray-300]="!(formSubmitIntentado && descField.invalid)"
+                    placeholder="Describe el producto..."></textarea>
+                  @if (formSubmitIntentado && descField.invalid) {
+                    <p class="text-xs text-red-500 mt-1">Mínimo 10 caracteres.</p>
+                  }
+                </div>
 
-                  <!-- Precio Original -->
-                  <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                      Precio Original <span class="text-gray-400 font-normal normal-case">(opcional, para descuentos)</span>
-                    </label>
-                    <input type="number" name="originalPrice" [(ngModel)]="nuevoProducto.originalPrice"
-                      #origCtrl="ngModel" min="0" step="0.01"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
-                      placeholder="500.00">
-                  </div>
+                <!-- Precio -->
+                <div>
+                  <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Precio (MXN) <span class="text-red-500">*</span></label>
+                  <input type="number" name="price" [(ngModel)]="nuevoProducto.price" required min="0"
+                    #priceField="ngModel"
+                    class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
+                    [class.border-red-400]="formSubmitIntentado && priceField.invalid"
+                    [class.border-gray-300]="!(formSubmitIntentado && priceField.invalid)"
+                    placeholder="0.00">
+                  @if (formSubmitIntentado && priceField.invalid) {
+                    <p class="text-xs text-red-500 mt-1">Ingresa un precio válido.</p>
+                  }
+                </div>
 
-                  <!-- Stock -->
-                  <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Stock</label>
-                    <input type="number" name="stock" [(ngModel)]="nuevoProducto.stock" #stockCtrl="ngModel"
-                      min="0" required
-                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
-                      [class.border-red-400]="stockCtrl.invalid && formSubmitIntentado"
-                      [class.border-gray-300]="!stockCtrl.invalid || !formSubmitIntentado"
-                      placeholder="10">
-                    @if (stockCtrl.invalid && formSubmitIntentado) {
-                      <p class="text-red-500 text-xs mt-1 font-medium">Stock obligatorio y no negativo.</p>
-                    }
-                  </div>
+                <!-- Precio original -->
+                <div>
+                  <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Precio Original (opcional)</label>
+                  <input type="number" name="originalPrice" [(ngModel)]="nuevoProducto.originalPrice" min="0"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
+                    placeholder="Para mostrar descuento">
+                </div>
 
-                  <!-- Categoría -->
-                  <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Categoría</label>
-                    <select name="category" [(ngModel)]="nuevoProducto.category" #catCtrl="ngModel" required
-                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
-                      [class.border-red-400]="catCtrl.invalid && formSubmitIntentado"
-                      [class.border-gray-300]="!catCtrl.invalid || !formSubmitIntentado">
-                      <option value="Vestidos">Vestidos</option>
-                      <option value="Blusas">Blusas</option>
-                      <option value="Accesorios">Accesorios</option>
-                      <option value="Otro">Otro</option>
-                    </select>
-                  </div>
+                <!-- Stock -->
+                <div>
+                  <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Stock <span class="text-red-500">*</span></label>
+                  <input type="number" name="stock" [(ngModel)]="nuevoProducto.stock" required min="0"
+                    #stockField="ngModel"
+                    class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
+                    [class.border-red-400]="formSubmitIntentado && stockField.invalid"
+                    [class.border-gray-300]="!(formSubmitIntentado && stockField.invalid)"
+                    placeholder="0">
+                  @if (formSubmitIntentado && stockField.invalid) {
+                    <p class="text-xs text-red-500 mt-1">Ingresa un stock válido.</p>
+                  }
+                </div>
 
-                  <!-- Región -->
-                  <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Región</label>
-                    <select name="region" [(ngModel)]="nuevoProducto.region" #regCtrl="ngModel" required
-                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
-                      [class.border-red-400]="regCtrl.invalid && formSubmitIntentado"
-                      [class.border-gray-300]="!regCtrl.invalid || !formSubmitIntentado">
-                      <option value="Tehuacan">Tehuacan</option>
-                      <option value="otro">Otro</option>
-                    </select>
-                  </div>
+                <!-- Categoría -->
+                <div>
+                  <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Categoría <span class="text-red-500">*</span></label>
+                  <select name="category" [(ngModel)]="nuevoProducto.category" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+                    <option value="Vestidos">Vestidos</option>
+                    <option value="Blusas">Blusas</option>
+                    <option value="Accesorios">Accesorios</option>
+                    <option value="Otro">Otro</option>
+                  </select>
+                </div>
 
-                  <!-- Descripción -->
-                  <div class="md:col-span-2">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Descripción</label>
-                    <textarea name="description" [(ngModel)]="nuevoProducto.description" #descCtrl="ngModel"
-                      minlength="10" maxlength="5000" rows="3" required
-                      class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E] transition-colors"
-                      [class.border-red-400]="descCtrl.invalid && formSubmitIntentado"
-                      [class.border-gray-300]="!descCtrl.invalid || !formSubmitIntentado"
-                      placeholder="Describe el producto..."></textarea>
-                    @if (descCtrl.invalid && formSubmitIntentado) {
-                      <p class="text-red-500 text-xs mt-1 font-medium">Descripción obligatoria (mínimo 10 caracteres).</p>
-                    }
-                  </div>
+                <!-- Región -->
+                <div>
+                  <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Región <span class="text-red-500">*</span></label>
+                  <select name="region" [(ngModel)]="nuevoProducto.region" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+                    <option value="Tehuacan">Tehuacan</option>
+                    <option value="otro">otro</option>
+                  </select>
+                </div>
 
-                  <!-- Imágenes -->
-                  <div class="md:col-span-2">
-                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                      Imágenes <span class="text-gray-400 font-normal normal-case">(URLs completas https://...)</span>
-                    </label>
-                    <div class="space-y-3 mb-3">
-                      @for (imagen of nuevoProducto.images; track trackByIndex($index)) {
-                        <div class="flex gap-2">
-                          <input type="url" [(ngModel)]="nuevoProducto.images[$index]"
-                            [name]="'image' + $index" #imgCtrl="ngModel"
-                            pattern="^https?://.+" required
-                            class="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
-                            [class.border-red-400]="imgCtrl.invalid && formSubmitIntentado"
-                            [class.border-gray-300]="!imgCtrl.invalid || !formSubmitIntentado"
-                            placeholder="https://example.com/imagen.jpg">
-                          @if (nuevoProducto.images.length > 1) {
-                            <button type="button" (click)="eliminarImagen($index)"
-                              class="px-4 py-3 bg-red-50 text-red-500 border border-red-200 rounded-lg hover:bg-red-500 hover:text-white transition-colors">
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                              </svg>
-                            </button>
-                          }
-                        </div>
+                <!-- Imágenes -->
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-bold text-gray-600 uppercase mb-2">URLs de Imágenes</label>
+                  @for (img of nuevoProducto.images; track $index) {
+                    <div class="flex gap-2 mb-2">
+                      <input type="url" [name]="'image_' + $index" [(ngModel)]="nuevoProducto.images[$index]"
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]"
+                        placeholder="https://...">
+                      @if (nuevoProducto.images.length > 1) {
+                        <button type="button" (click)="eliminarImagen($index)"
+                          class="px-3 py-2 text-red-500 hover:text-red-700 border border-red-200 rounded-lg text-sm transition-colors">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                          </svg>
+                        </button>
                       }
                     </div>
-                    <button type="button" (click)="agregarImagen()"
-                      class="w-full px-4 py-3 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-[#D11C5E] hover:text-[#D11C5E] transition-all font-medium text-sm flex items-center justify-center gap-2">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                      </svg>
-                      Agregar imagen
-                    </button>
-                  </div>
-
-                </div>
-
-                <!-- Acciones -->
-                <div class="flex flex-wrap items-center gap-3 mt-8 pt-6 border-t border-gray-100">
-                  <button type="submit" [disabled]="isLoadingProducto"
-                    class="px-7 py-3 bg-[#D11C5E] text-white font-bold rounded-lg hover:bg-[#E63E6D] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 text-sm uppercase tracking-wide">
-                    @if (isLoadingProducto) {
-                      <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                      </svg>
-                      Guardando...
-                    } @else {
-                      {{ nuevoProducto._id ? 'Actualizar producto' : 'Guardar producto' }}
-                    }
-                  </button>
-
-                  <button type="button" (click)="cerrarFormulario()"
-                    class="px-5 py-3 border border-gray-300 text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-all text-sm">
-                    Cancelar
+                  }
+                  <button type="button" (click)="agregarImagen()"
+                    class="mt-1 text-xs font-bold text-[#D11C5E] hover:text-[#E63E6D] flex items-center gap-1 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Agregar imagen
                   </button>
                 </div>
 
-              </form>
-            </div>
+              </div>
+
+              <!-- Botones -->
+              <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+                <button type="button" (click)="cerrarFormulario()"
+                  class="px-5 py-2 text-sm font-bold text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  Cancelar
+                </button>
+                <button type="submit" [disabled]="isLoadingProducto"
+                  class="px-6 py-2 bg-[#D11C5E] text-white text-sm font-bold rounded-lg hover:bg-[#E63E6D] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                  @if (isLoadingProducto) {
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                    </svg>
+                    Guardando...
+                  } @else {
+                    {{ nuevoProducto._id ? 'Actualizar producto' : 'Crear producto' }}
+                  }
+                </button>
+              </div>
+
+            </form>
           }
         </div>
 
@@ -444,7 +406,6 @@
 
   <!-- ================================================================
        TOAST — siempre en el DOM, visible/oculto por opacidad + translate
-       Así Angular no necesita crear/destruir el nodo, solo cambia clases.
   ================================================================ -->
   <div
     class="fixed bottom-6 right-6 z-[9999] flex items-start gap-3 px-5 py-4 rounded-xl shadow-2xl max-w-xs w-full border transition-all duration-300"
@@ -460,7 +421,6 @@
     [class.border-red-300]="!toastExito"
     [class.text-red-800]="!toastExito">
 
-    <!-- Ícono éxito -->
     @if (toastExito) {
       <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
         <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
