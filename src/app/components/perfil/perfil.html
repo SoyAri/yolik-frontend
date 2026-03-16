@@ -1,0 +1,185 @@
+<!-- HEADER DE PERFIL -->
+<section class="w-full h-[30vh] relative overflow-hidden bg-gradient-to-r from-[#D11C5E] to-[#E63E6D]">
+  <div class="absolute inset-0 bg-black/20"></div>
+  <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=2000"
+       class="absolute w-full h-full object-cover opacity-30 mix-blend-overlay"
+       alt="Perfil YOLIK">
+  <div class="relative z-10 flex flex-col items-center justify-center h-full text-white px-4">
+    <h1 class="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-2">
+      Mi Perfil
+    </h1>
+    <p class="text-sm md:text-base font-light tracking-widest uppercase">
+      Tu cuenta YOLIK
+    </p>
+  </div>
+</section>
+
+<!-- CONTENIDO PRINCIPAL -->
+<section class="w-full bg-gray-50 py-12">
+  <div class="px-6 md:px-12 max-w-5xl mx-auto flex flex-col gap-8">
+
+    <!-- TARJETA DE USUARIO -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+
+      <!-- Avatar -->
+      <div class="relative flex-shrink-0">
+        @if (userPicture()) {
+          <img [src]="userPicture()"
+               [alt]="ui.userName()"
+               class="w-24 h-24 rounded-full object-cover border-4 border-[#D11C5E] shadow-md">
+        } @else {
+          <div class="w-24 h-24 rounded-full bg-[#D11C5E] flex items-center justify-center shadow-md">
+            <i class="fa-solid fa-user text-4xl text-white"></i>
+          </div>
+        }
+        <!-- Badge online -->
+        <span class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></span>
+      </div>
+
+      <!-- Info -->
+      <div class="flex flex-col gap-1 text-center sm:text-left flex-1">
+        <h2 class="text-2xl font-black text-gray-900">{{ ui.userName() || 'Usuario YOLIK' }}</h2>
+        <p class="text-gray-500 text-sm">{{ userEmail() || 'correo@ejemplo.com' }}</p>
+        <div class="flex flex-wrap justify-center sm:justify-start gap-3 mt-3">
+          <span class="px-3 py-1 bg-pink-50 text-[#D11C5E] text-xs font-bold rounded-full border border-pink-200">
+            <i class="fa-solid fa-bag-shopping mr-1"></i>{{ pedidos.length }} pedidos
+          </span>
+          <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">
+            <i class="fa-solid fa-calendar mr-1"></i>Miembro desde 2024
+          </span>
+        </div>
+      </div>
+
+      <!-- Botón cerrar sesión -->
+      <button (click)="cerrarSesion()"
+              class="flex-shrink-0 flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-[#D11C5E] hover:text-[#D11C5E] transition-colors">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Cerrar sesión
+      </button>
+    </div>
+
+    <!-- SECCIÓN DE PEDIDOS -->
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-black text-gray-900 uppercase tracking-tight">
+          Mis Pedidos
+        </h3>
+        <span class="text-xs text-gray-500 font-medium">
+          {{ pedidos.length }} pedido{{ pedidos.length !== 1 ? 's' : '' }} en total
+        </span>
+      </div>
+
+      <!-- Sin pedidos -->
+      @if (pedidos.length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 gap-4 bg-white rounded-2xl shadow-sm">
+          <i class="fa-solid fa-bag-shopping text-5xl text-gray-300"></i>
+          <p class="text-gray-500 font-medium">Aún no tienes pedidos</p>
+          <a routerLink="/tienda"
+             class="px-6 py-2 bg-[#D11C5E] text-white font-bold rounded-lg hover:bg-[#b91750] transition-colors text-sm">
+            Ir a la tienda
+          </a>
+        </div>
+      }
+
+      <!-- Lista de pedidos -->
+      @for (pedido of pedidos; track pedido.id) {
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+
+          <!-- Encabezado del pedido -->
+          <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+            <div class="flex flex-wrap items-center gap-4">
+              <div class="flex flex-col">
+                <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Pedido</span>
+                <span class="text-sm font-black text-gray-800">{{ pedido.id }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Fecha</span>
+                <span class="text-sm font-semibold text-gray-700">{{ pedido.fecha }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Total</span>
+                <span class="text-sm font-black text-[#D11C5E]">${{ pedido.total }} MXN</span>
+              </div>
+            </div>
+
+            <!-- Badge estatus -->
+            <span [class]="getEstatusClass(pedido.estatus)">
+              <i [class]="getEstatusIcon(pedido.estatus) + ' mr-1'"></i>
+              {{ pedido.estatus }}
+            </span>
+          </div>
+
+          <!-- Productos del pedido -->
+          <div class="divide-y divide-gray-50">
+            @for (item of pedido.items; track item.productoId) {
+              <div class="flex items-center gap-4 px-6 py-4">
+
+                <!-- Imagen -->
+                <a [routerLink]="['/detalle-producto', item.productoId]"
+                   class="flex-shrink-0 w-16 h-20 rounded-lg overflow-hidden bg-gray-100 block">
+                  @if (item.imagen) {
+                    <img [src]="item.imagen" [alt]="item.nombre"
+                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                  } @else {
+                    <div class="w-full h-full flex items-center justify-center">
+                      <i class="fa-solid fa-image text-2xl text-gray-300"></i>
+                    </div>
+                  }
+                </a>
+
+                <!-- Info producto -->
+                <div class="flex-1 min-w-0">
+                  <a [routerLink]="['/detalle-producto', item.productoId]"
+                     class="font-bold text-sm text-[#D11C5E] hover:underline line-clamp-2 block">
+                    {{ item.nombre }}
+                  </a>
+                  <p class="text-xs text-gray-500 mt-0.5">{{ item.categoria }}</p>
+                  <div class="flex items-center gap-3 mt-1">
+                    <span class="text-xs text-gray-500">Cant: <strong class="text-gray-700">{{ item.cantidad }}</strong></span>
+                    <span class="text-xs text-gray-400">·</span>
+                    <span class="text-xs text-gray-500">${{ item.precio }} c/u</span>
+                  </div>
+                </div>
+
+                <!-- Subtotal -->
+                <div class="flex-shrink-0 text-right">
+                  <span class="text-base font-black text-gray-800">${{ item.precio * item.cantidad }}</span>
+                  <span class="text-xs text-gray-500 block">MXN</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Footer del pedido -->
+          <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/40">
+            <div class="flex items-start gap-2 text-xs text-gray-500">
+              <i class="fa-solid fa-location-dot mt-0.5 text-[#D11C5E]"></i>
+              <span>{{ pedido.direccion }}</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-gray-500">
+              <span>Envío:
+                <strong [class]="pedido.envio === 0 ? 'text-green-600' : 'text-gray-700'">
+                  {{ pedido.envio === 0 ? 'Gratis' : '$' + pedido.envio + ' MXN' }}
+                </strong>
+              </span>
+              @if (pedido.descuento > 0) {
+                <span class="text-green-600 font-bold">-${{ pedido.descuento }} descuento</span>
+              }
+            </div>
+          </div>
+
+        </div>
+      }
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="w-full py-8 bg-white border-t border-gray-200 mt-4">
+  <div class="px-6 text-center">
+    <p class="text-gray-600 text-sm">
+      © 2024 YOLIK · Moda Tradicional de Chilac, Puebla
+    </p>
+  </div>
+</footer>

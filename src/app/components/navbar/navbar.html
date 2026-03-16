@@ -1,5 +1,7 @@
 @if (ui.visible()) {
-  <nav class="fixed top-0 left-0 w-full h-16 bg-[#F2D2A9] text-black backdrop-blur-md border-b z-[100] px-6 flex items-center justify-between">
+  <nav
+    class="fixed top-0 left-0 w-full h-16 bg-[#F2D2A9] text-black backdrop-blur-md border-b z-[100] px-6 flex items-center justify-between"
+  >
     <div class="flex items-center h-full gap-8">
       <a routerLink="/" class="flex items-center text-2xl font-black tracking-tighter">
         <img src="/yoliknavbar.png" alt="YOLIK Logo" class="h-12 w-auto mr-2" />
@@ -38,9 +40,12 @@
       <div class="flex items-center gap-4">
         @if (auth) {
           @if (ui.isLoggedIn()) {
-            <span class="text-[10px] font-bold uppercase tracking-widest text-[#D11C5E]">
+            <a
+              routerLink="/perfil"
+              class="text-[10px] font-bold uppercase tracking-widest text-[#D11C5E] hover:underline"
+            >
               {{ ui.userName() }}
-            </span>
+            </a>
             <button
               (click)="logout()"
               class="text-[10px] font-bold uppercase tracking-widest hover:text-[#D11C5E] transition-colors"
