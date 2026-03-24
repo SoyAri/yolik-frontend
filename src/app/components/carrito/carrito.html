@@ -157,7 +157,7 @@
                 <h3 class="font-black text-gray-900 uppercase tracking-tight">Resumen</h3>
 
                 <!-- Descuento -->
-                @if (!discountApplied) {
+                <!-- @if (!discountApplied) {
                   <div class="flex gap-2">
                     <input [(ngModel)]="discountCode"
                            placeholder="Código de descuento"
@@ -179,7 +179,7 @@
                       <i class="fa-solid fa-xmark text-xs"></i>
                     </button>
                   </div>
-                }
+                } -->
 
                 <div class="flex flex-col gap-2 text-sm border-t border-gray-100 pt-4">
                   <div class="flex justify-between text-gray-600">
@@ -237,49 +237,86 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Nombre completo *</label>
-                  <input [(ngModel)]="shippingData.nombre" placeholder="Tu nombre"
-                         class="px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+                  <input [(ngModel)]="shippingData.nombre" (ngModelChange)="onNombreChange($event)" placeholder="Tu nombre"
+                        (keydown)="onNombreKeydown($event)" (beforeinput)="onFieldBeforeInput($event, 'nombre')" (paste)="onFieldPaste($event, 'nombre')"
+                         maxlength="80" autocomplete="name"
+                         [class]="'px-4 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 ' + (shippingData.nombre && !isNombreValido(shippingData.nombre) ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-[#D11C5E]')">
+                  @if (shippingData.nombre && !isNombreValido(shippingData.nombre)) {
+                    <p class="text-[11px] text-red-500">Solo letras y espacios (3 a 80 caracteres).</p>
+                  }
                 </div>
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Teléfono *</label>
-                  <input [(ngModel)]="shippingData.telefono" placeholder="10 dígitos"
-                         class="px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+                  <input [(ngModel)]="shippingData.telefono" (ngModelChange)="onTelefonoChange($event)" placeholder="10 dígitos"
+                        (keydown)="onTelefonoKeydown($event)" (beforeinput)="onFieldBeforeInput($event, 'telefono')" (paste)="onFieldPaste($event, 'telefono')"
+                         maxlength="10" inputmode="numeric" autocomplete="tel"
+                         [class]="'px-4 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 ' + (shippingData.telefono && !isTelefonoValido(shippingData.telefono) ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-[#D11C5E]')">
+                  @if (shippingData.telefono && !isTelefonoValido(shippingData.telefono)) {
+                    <p class="text-[11px] text-red-500">Debe tener exactamente 10 dígitos numéricos.</p>
+                  }
                 </div>
                 <div class="sm:col-span-2 flex flex-col gap-1">
                   <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Calle y número *</label>
-                  <input [(ngModel)]="shippingData.calle" placeholder="Ej. Av. Hidalgo 123"
-                         class="px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+                  <input [(ngModel)]="shippingData.calle" (ngModelChange)="onCalleChange($event)" placeholder="Ej. Av. Hidalgo 123"
+                        (keydown)="onCalleKeydown($event)" (beforeinput)="onFieldBeforeInput($event, 'calle')" (paste)="onFieldPaste($event, 'calle')"
+                         maxlength="120" autocomplete="address-line1"
+                         [class]="'px-4 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 ' + (shippingData.calle && !isCalleValida(shippingData.calle) ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-[#D11C5E]')">
+                  @if (shippingData.calle && !isCalleValida(shippingData.calle)) {
+                    <p class="text-[11px] text-red-500">Usa una dirección válida (5 a 120 caracteres, sin símbolos extraños).</p>
+                  }
                 </div>
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Colonia *</label>
-                  <input [(ngModel)]="shippingData.colonia" placeholder="Colonia"
-                         class="px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+                  <input [(ngModel)]="shippingData.colonia" (ngModelChange)="onColoniaChange($event)" placeholder="Colonia"
+                        (keydown)="onColoniaKeydown($event)" (beforeinput)="onFieldBeforeInput($event, 'colonia')" (paste)="onFieldPaste($event, 'colonia')"
+                         maxlength="80" autocomplete="address-level3"
+                         [class]="'px-4 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 ' + (shippingData.colonia && !isColoniaValida(shippingData.colonia) ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-[#D11C5E]')">
+                  @if (shippingData.colonia && !isColoniaValida(shippingData.colonia)) {
+                    <p class="text-[11px] text-red-500">Solo letras/números básicos (2 a 80 caracteres).</p>
+                  }
                 </div>
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Ciudad *</label>
-                  <input [(ngModel)]="shippingData.ciudad" placeholder="Ciudad"
-                         class="px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+                  <input [(ngModel)]="shippingData.ciudad" (ngModelChange)="onCiudadChange($event)" placeholder="Ciudad"
+                        (keydown)="onCiudadKeydown($event)" (beforeinput)="onFieldBeforeInput($event, 'ciudad')" (paste)="onFieldPaste($event, 'ciudad')"
+                         maxlength="60" autocomplete="address-level2"
+                         [class]="'px-4 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 ' + (shippingData.ciudad && !isCiudadValida(shippingData.ciudad) ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-[#D11C5E]')">
+                  @if (shippingData.ciudad && !isCiudadValida(shippingData.ciudad)) {
+                    <p class="text-[11px] text-red-500">Solo letras y espacios (2 a 60 caracteres).</p>
+                  }
                 </div>
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Código Postal *</label>
-                  <input [(ngModel)]="shippingData.codigoPostal" placeholder="00000"
-                         class="px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+                  <input [(ngModel)]="shippingData.codigoPostal" (ngModelChange)="onCodigoPostalChange($event)" placeholder="Ej. 72000"
+                        (keydown)="onCodigoPostalKeydown($event)" (beforeinput)="onFieldBeforeInput($event, 'codigoPostal')" (paste)="onFieldPaste($event, 'codigoPostal')"
+                         maxlength="10" inputmode="text" autocomplete="postal-code"
+                         [class]="'px-4 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 ' + (shippingData.codigoPostal && !isCodigoPostalValido(shippingData.codigoPostal) ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-[#D11C5E]')">
+                  @if (shippingData.codigoPostal && !isCodigoPostalValido(shippingData.codigoPostal)) {
+                    <p class="text-[11px] text-red-500">Usa CP MX de 5 dígitos.</p>
+                  }
                 </div>
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Estado *</label>
-                  <input [(ngModel)]="shippingData.estado" placeholder="Ej. Puebla"
-                         class="px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
+                  <input [(ngModel)]="shippingData.estado" (ngModelChange)="onEstadoChange($event)" placeholder="Ej. Puebla"
+                        (keydown)="onEstadoKeydown($event)" (beforeinput)="onFieldBeforeInput($event, 'estado')" (paste)="onFieldPaste($event, 'estado')"
+                         maxlength="60" autocomplete="address-level1"
+                         [class]="'px-4 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 ' + (shippingData.estado && !isEstadoValido(shippingData.estado) ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-[#D11C5E]')">
+                  @if (shippingData.estado && !isEstadoValido(shippingData.estado)) {
+                    <p class="text-[11px] text-red-500">Solo letras y espacios (2 a 60 caracteres).</p>
+                  }
                 </div>
                 <div class="sm:col-span-2 flex flex-col gap-1">
                   <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Referencias</label>
-                  <input [(ngModel)]="shippingData.referencias" placeholder="Ej. Casa de color azul, entre Morelos y Juárez"
+                  <input [(ngModel)]="shippingData.referencias" (ngModelChange)="onReferenciasChange($event)" placeholder="Ej. Casa de color azul, entre Morelos y Juárez"
+                        (keydown)="onReferenciasKeydown($event)" (beforeinput)="onFieldBeforeInput($event, 'referencias')" (paste)="onFieldPaste($event, 'referencias')"
+                         maxlength="180"
                          class="px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D11C5E]">
                 </div>
               </div>
 
               @if (!shippingValido()) {
                 <p class="mt-4 text-xs text-red-500 font-medium">
-                  <i class="fa-solid fa-triangle-exclamation mr-1"></i>Completa todos los campos obligatorios (*)
+                  <i class="fa-solid fa-triangle-exclamation mr-1"></i>Revisa los campos: deben estar completos y con formato válido.
                 </p>
               }
 

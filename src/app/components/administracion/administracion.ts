@@ -60,7 +60,7 @@ export class Administracion implements OnInit {
   tallasDisponibles: string[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Única'];
 
   nuevoProducto: Producto = {
-    name: '', description: '', price: 0, originalPrice: 0,
+    name: '', description: '', price: 0, originalPrice: undefined,
     stock: 0, category: 'Vestidos', region: 'Tehuacan', images: ['']
   };
 
@@ -76,6 +76,8 @@ export class Administracion implements OnInit {
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   cargandoAdmin = true;
+  cargandoResumen = true;
+  cargandoProductosArray = true;
   token = '';
 
   private http = inject(HttpClient);
@@ -97,24 +99,40 @@ export class Administracion implements OnInit {
     }, 10);
 
     this.auth.isAuthenticated$.subscribe(isAuth => {
-      if (!isAuth) { this.router.navigate(['/']); return; }
+      this.ngZone.run(() => {
+        if (!isAuth) { this.router.navigate(['/']); return; }
 
-      this.auth!.user$.subscribe(user => {
-        if (!user) { this.router.navigate(['/']); return; }
+        this.auth!.user$.subscribe(user => {
+          this.ngZone.run(() => {
+            if (!user) { this.router.navigate(['/']); return; }
 
-        const roles = user['https://yolik.com/roles'] || [];
-        if (!Array.isArray(roles) || !roles.includes('admin')) {
-          this.router.navigate(['/']); return;
-        }
+            const roles = user['https://yolik.com/roles'] || [];
+            if (!Array.isArray(roles) || !roles.includes('admin')) {
+              this.router.navigate(['/']); return;
+            }
 
-        this.auth!.getAccessTokenSilently().subscribe({
-          next: (token) => {
-            this.token = token;
-            this.cargandoAdmin = false;
-            this.cdr.detectChanges();
-            this.cargarDatosReales();
-          },
-          error: () => this.router.navigate(['/'])
+            this.auth!.getAccessTokenSilently().subscribe({
+              next: (token) => {
+                this.ngZone.run(() => {
+                  this.token = token;
+
+                  // Limitamos a que cargue datos SOLAMENTE 1 VEZ durante el ciclo de vida del componente
+                  // para que si Auth0 emite múltiples veces en F5, no se queden trabados los indicadores
+                  if (this.cargandoAdmin) {
+                    this.cargandoAdmin = false;
+                    this.cdr.markForCheck();
+                    this.cdr.detectChanges();
+                    this.cargarDatosReales();
+                  }
+                });
+              },
+              error: () => {
+                this.ngZone.run(() => {
+                  this.router.navigate(['/']);
+                });
+              }
+            });
+          });
         });
       });
     });
@@ -172,53 +190,89 @@ export class Administracion implements OnInit {
   // DATOS
   // ----------------------------------------------------------------
   cargarDatosReales() {
+    this.cargandoResumen = true;
     const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
 
     this.http.get<any>(`${this.apiUrl}/api/dashboard/summary?days=30`, { headers }).subscribe({
       next: (res) => {
-        if (res?.metrics) {
-          this.stats.ventasTotales = res.metrics.grossRevenue || 0;
-          this.stats.totalPedidos = res.metrics.orders || 0;
-          // ✅ CORREGIDO: busca por el valor en español que usa el modelo
-          const pending = res.orderStatus?.find((s: any) => s.status === 'Procesando');
-          this.stats.pedidosPendientes = pending?.count || 0;
-        }
-        if (res?.recentOrders) {
-          this.pedidos = res.recentOrders.map((o: any) => ({
-            id: o._id, orderNumber: o.orderNumber,
-            // ✅ CORREGIDO: usa userEmail guardado en la orden
-            cliente: o.userEmail || o.userId || 'Sin datos',
-            fecha: o.createdAt, total: o.total,
-            estado: o.status, paymentStatus: o.paymentStatus, items: []
-          }));
-        }
-        this.cdr.detectChanges();
+        this.ngZone.run(() => {
+          if (res?.metrics) {
+            this.stats.ventasTotales = res.metrics.grossRevenue || 0;
+            this.stats.totalPedidos = res.metrics.orders || 0;
+            // ✅ CORREGIDO: busca por el valor en español que usa el modelo
+            const pending = res.orderStatus?.find((s: any) => s.status === 'Procesando');
+            this.stats.pedidosPendientes = pending?.count || 0;
+          }
+          if (res?.recentOrders) {
+            this.pedidos = res.recentOrders.map((o: any) => ({
+              id: o._id, orderNumber: o.orderNumber,
+              // ✅ CORREGIDO: usa userEmail guardado en la orden
+              cliente: o.userEmail || o.userId || 'Sin datos',
+              fecha: o.createdAt, total: o.total,
+              estado: o.status, paymentStatus: o.paymentStatus, items: []
+            }));
+          }
+          this.cargandoResumen = false;
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+        });
       },
-      error: (err) => console.error('Error cargando stats', err)
+      error: (err) => {
+        this.ngZone.run(() => {
+          console.error('Error cargando stats', err);
+          this.cargandoResumen = false;
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+        });
+      }
     });
 
     this.cargarProductos();
   }
 
   cargarProductos() {
-    const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
-    this.http.get<any>(`${this.apiUrl}/api/dashboard/products`, { headers }).subscribe({
-      next: (res) => { this.productos = res.products || res; this.cdr.detectChanges(); },
-      error: (err) => console.error('Error cargando productos', err)
-    });
-  }
-
-  private recargarProductos(onDone?: () => void) {
+    this.cargandoProductosArray = true;
+    this.cdr.markForCheck();
     const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
     this.http.get<any>(`${this.apiUrl}/api/dashboard/products`, { headers }).subscribe({
       next: (res) => {
         this.ngZone.run(() => {
           this.productos = res.products || res;
+          this.cargandoProductosArray = false;
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        this.ngZone.run(() => {
+          console.error('Error cargando productos', err);
+          this.cargandoProductosArray = false;
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  private recargarProductos(onDone?: () => void) {
+    this.cargandoProductosArray = true;
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
+    this.http.get<any>(`${this.apiUrl}/api/dashboard/products`, { headers }).subscribe({
+      next: (res) => {
+        this.ngZone.run(() => {
+          this.productos = res.products || res;
+          this.cargandoProductosArray = false;
           this.cdr.detectChanges();
           onDone?.();
         });
       },
-      error: () => onDone?.()
+      error: () => {
+        this.ngZone.run(() => {
+          this.cargandoProductosArray = false;
+          this.cdr.detectChanges();
+          onDone?.();
+        });
+      }
     });
   }
 
@@ -273,20 +327,32 @@ export class Administracion implements OnInit {
 
   trackByIndex(index: number): number { return index; }
 
+  tieneDescuentoInvalido(): boolean {
+    const original = this.nuevoProducto.originalPrice;
+    const final = this.nuevoProducto.price;
+
+    if (original == null || original <= 0 || final == null) return false;
+    return final > original;
+  }
+
   guardarProducto() {
     this.formSubmitIntentado = true;
-    this.isLoadingProducto = true;
     this.cerrarToast();
+
+    if (this.tieneDescuentoInvalido()) {
+      this.mostrarToast('El precio con descuento no puede ser mayor al precio original.', false, 6000);
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.isLoadingProducto = true;
     this.cdr.detectChanges();
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${this.token}` });
 
-    let origPrice = this.nuevoProducto.originalPrice;
-    if (origPrice != null && this.nuevoProducto.price > origPrice) origPrice = this.nuevoProducto.price;
-
     const payload = {
       ...this.nuevoProducto,
-      originalPrice: origPrice,
+      originalPrice: this.nuevoProducto.originalPrice,
       images: this.nuevoProducto.images.filter(img => img.trim() !== '')
     };
 
@@ -363,7 +429,7 @@ export class Administracion implements OnInit {
 
   limpiarFormularioProducto() {
     this.nuevoProducto = {
-      name: '', description: '', price: 0, originalPrice: 0,
+      name: '', description: '', price: 0, originalPrice: undefined,
       stock: 0, category: 'Vestidos', region: 'Tehuacan', images: ['']
     };
   }

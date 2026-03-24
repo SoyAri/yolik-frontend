@@ -55,6 +55,14 @@ export class Carrito implements OnInit, OnDestroy {
     estado: '', referencias: ''
   };
 
+  private readonly nombreRegex = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]{3,80}$/;
+  private readonly telefonoRegex = /^\d{10}$/;
+  private readonly calleRegex = /^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s#.,\-/]{5,120}$/;
+  private readonly coloniaRegex = /^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s.,\-]{2,80}$/;
+  private readonly ciudadEstadoRegex = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]{2,60}$/;
+  private readonly cpMxRegex = /^\d{5}$/;
+  private readonly cpIntlRegex = /^(?=.*\d)(?=.*[A-Za-z])[A-Za-z0-9](?:[A-Za-z0-9\-\s]{1,8}[A-Za-z0-9])?$/;
+
   // ── Descuento ────────────────────────────────────────────────────
   discountCode    = '';
   discountApplied = false;
@@ -257,7 +265,175 @@ export class Carrito implements OnInit, OnDestroy {
   // ─────────────────────────────────────────────────────────────────
   shippingValido(): boolean {
     const d = this.shippingData;
-    return !!(d.nombre && d.telefono && d.calle && d.colonia && d.ciudad && d.codigoPostal && d.estado);
+    return this.isNombreValido(d.nombre)
+      && this.isTelefonoValido(d.telefono)
+      && this.isCalleValida(d.calle)
+      && this.isColoniaValida(d.colonia)
+      && this.isCiudadValida(d.ciudad)
+      && this.isCodigoPostalValido(d.codigoPostal)
+      && this.isEstadoValido(d.estado);
+  }
+
+  onNombreChange(value: string) {
+    this.shippingData.nombre = value
+      .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trimStart();
+  }
+
+  onNombreKeydown(event: KeyboardEvent) {
+    if (this.isControlKey(event)) return;
+    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]$/.test(event.key)) event.preventDefault();
+  }
+
+  onTelefonoChange(value: string) {
+    this.shippingData.telefono = value.replace(/\D/g, '').slice(0, 10);
+  }
+
+  onTelefonoKeydown(event: KeyboardEvent) {
+    if (this.isControlKey(event)) return;
+    if (!/^\d$/.test(event.key)) event.preventDefault();
+  }
+
+  onCalleChange(value: string) {
+    this.shippingData.calle = value
+      .replace(/[^A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s#.,\-/]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trimStart();
+  }
+
+  onCalleKeydown(event: KeyboardEvent) {
+    if (this.isControlKey(event)) return;
+    if (!/^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s#.,\-/]$/.test(event.key)) event.preventDefault();
+  }
+
+  onColoniaChange(value: string) {
+    this.shippingData.colonia = value
+      .replace(/[^A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s.,\-]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trimStart();
+  }
+
+  onColoniaKeydown(event: KeyboardEvent) {
+    if (this.isControlKey(event)) return;
+    if (!/^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s.,\-]$/.test(event.key)) event.preventDefault();
+  }
+
+  onCiudadChange(value: string) {
+    this.shippingData.ciudad = value
+      .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trimStart();
+  }
+
+  onCiudadKeydown(event: KeyboardEvent) {
+    if (this.isControlKey(event)) return;
+    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]$/.test(event.key)) event.preventDefault();
+  }
+
+  onCodigoPostalChange(value: string) {
+    this.shippingData.codigoPostal = value
+      .toUpperCase()
+      .replace(/[^A-Za-z0-9\-\s]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trimStart()
+      .slice(0, 10);
+  }
+
+  onCodigoPostalKeydown(event: KeyboardEvent) {
+    if (this.isControlKey(event)) return;
+    if (!/^[A-Za-z0-9\-\s]$/.test(event.key)) event.preventDefault();
+  }
+
+  onEstadoChange(value: string) {
+    this.shippingData.estado = value
+      .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trimStart();
+  }
+
+  onEstadoKeydown(event: KeyboardEvent) {
+    if (this.isControlKey(event)) return;
+    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]$/.test(event.key)) event.preventDefault();
+  }
+
+  onReferenciasChange(value: string) {
+    this.shippingData.referencias = value
+      .replace(/[^A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s#.,\-/:]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trimStart();
+  }
+
+  onReferenciasKeydown(event: KeyboardEvent) {
+    if (this.isControlKey(event)) return;
+    if (!/^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s#.,\-/:]$/.test(event.key)) event.preventDefault();
+  }
+
+  onFieldBeforeInput(event: InputEvent, field: 'nombre' | 'telefono' | 'calle' | 'colonia' | 'ciudad' | 'codigoPostal' | 'estado' | 'referencias') {
+    if (!event.data) return;
+    const charOk = {
+      nombre: /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]$/,
+      telefono: /^\d$/,
+      calle: /^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s#.,\-/]$/,
+      colonia: /^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s.,\-]$/,
+      ciudad: /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]$/,
+      codigoPostal: /^[A-Za-z0-9\-\s]$/,
+      estado: /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]$/,
+      referencias: /^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s#.,\-/:]$/,
+    }[field].test(event.data);
+
+    if (!charOk) event.preventDefault();
+  }
+
+  onFieldPaste(event: ClipboardEvent, field: 'nombre' | 'telefono' | 'calle' | 'colonia' | 'ciudad' | 'codigoPostal' | 'estado' | 'referencias') {
+    const text = event.clipboardData?.getData('text') ?? '';
+    const fullOk = {
+      nombre: /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/,
+      telefono: /^\d+$/,
+      calle: /^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s#.,\-/]+$/,
+      colonia: /^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s.,\-]+$/,
+      ciudad: /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/,
+      codigoPostal: /^[A-Za-z0-9\-\s]+$/,
+      estado: /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/,
+      referencias: /^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ\s#.,\-/:]+$/,
+    }[field].test(text);
+
+    if (!fullOk) event.preventDefault();
+  }
+
+  private isControlKey(event: KeyboardEvent): boolean {
+    return event.ctrlKey
+      || event.metaKey
+      || ['Backspace', 'Delete', 'Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key);
+  }
+
+  isNombreValido(value: string): boolean {
+    return this.nombreRegex.test(value.trim());
+  }
+
+  isTelefonoValido(value: string): boolean {
+    return this.telefonoRegex.test(value.trim());
+  }
+
+  isCalleValida(value: string): boolean {
+    return this.calleRegex.test(value.trim());
+  }
+
+  isColoniaValida(value: string): boolean {
+    return this.coloniaRegex.test(value.trim());
+  }
+
+  isCiudadValida(value: string): boolean {
+    return this.ciudadEstadoRegex.test(value.trim());
+  }
+
+  isCodigoPostalValido(value: string): boolean {
+    const cp = value.trim();
+    return this.cpMxRegex.test(cp) || this.cpIntlRegex.test(cp);
+  }
+
+  isEstadoValido(value: string): boolean {
+    return this.ciudadEstadoRegex.test(value.trim());
   }
 
   // ─────────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@
    ESTILOS PANEL ADMINISTRACIÓN YOLIK
    ============================================ */
 
+
 /* Animación de entrada */
 app-administracion main > div {
   animation: fadeIn 0.4s ease-out;
@@ -62,9 +63,14 @@ app-administracion select:hover {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Smooth scroll */
+/* Smooth scroll + asegura que el host no atrape el fixed */
 app-administracion {
   scroll-behavior: smooth;
+  display: block;
+  position: static !important;
+  transform: none !important;
+  will-change: auto !important;
+  contain: none !important;
 }
 
 /* Badges de estado */
