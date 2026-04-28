@@ -1,0 +1,49 @@
+# ── Dependencias (se instalan dentro del contenedor) ──────────────────────────
+node_modules/
+.npm/
+.pnpm-store/
+
+# ── Output de build ───────────────────────────────────────────────────────────
+dist/
+.angular/
+
+# ── Archivos de entorno (NUNCA deben entrar a la imagen) ──────────────────────
+.env
+.env.local
+.env.*.local
+# El .env.example sí puede incluirse (no contiene secretos)
+!.env.example
+
+# ── Archivos de desarrollo que no se necesitan en producción ──────────────────
+*.spec.ts
+coverage/
+.editorconfig
+README.md
+librerias.txt
+
+# ── Docker (evitar copia recursiva) ───────────────────────────────────────────
+Dockerfile
+Dockerfile.*
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# ── Control de versiones ──────────────────────────────────────────────────────
+.git/
+.gitignore
+.gitattributes
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user
+
+# ── Sistema operativo ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
