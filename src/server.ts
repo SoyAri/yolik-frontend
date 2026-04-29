@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
@@ -8,6 +9,10 @@ import express from 'express';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+
+// Indica al engine SSR cuál es el origen público del servidor.
+// Sin esto, Angular hace requests a http://localhost:PORT durante el rendering.
+process.env['SERVER_REQUEST_ORIGIN'] ??= process.env['ORIGIN'] ?? 'https://yolik.mx';
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
