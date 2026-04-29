@@ -52,20 +52,8 @@ services:
     image: yolik-backend:latest
     container_name: yolik-backend
     restart: unless-stopped
-    environment:
-      NODE_ENV:               production
-      PORT:                   3000
-      # Base de datos
-      DATABASE_URL:           ${DATABASE_URL}
-      # Auth0 (backend — credenciales de server-side, distintas del frontend)
-      AUTH0_SECRET:           ${AUTH0_SECRET}
-      AUTH0_BASE_URL:         ${AUTH0_BASE_URL:-https://yolik.mx}
-      AUTH0_ISSUER_BASE_URL:  ${AUTH0_ISSUER_BASE_URL}
-      AUTH0_CLIENT_ID:        ${AUTH0_CLIENT_ID_BACKEND}
-      AUTH0_CLIENT_SECRET:    ${AUTH0_CLIENT_SECRET}
-      # Stripe (backend — clave secreta, NUNCA al frontend)
-      STRIPE_SECRET_KEY:      ${STRIPE_SECRET_KEY}
-      STRIPE_WEBHOOK_SECRET:  ${STRIPE_WEBHOOK_SECRET}
+    env_file:
+      - ../Backend-Yolik/.env
     expose:
       - "3000"
     networks:
