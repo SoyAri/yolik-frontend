@@ -12,7 +12,7 @@ const auth0Config = mergeApplicationConfig(appConfig, {
       clientId: environment.auth0.clientId,
       authorizationParams: {
         redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
-        audience: 'http://localhost:5050',
+        audience: environment.apiUrl,
       },
       cacheLocation: 'localstorage',
       useRefreshTokens: true
