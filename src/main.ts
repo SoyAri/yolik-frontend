@@ -14,6 +14,16 @@ const auth0Config = mergeApplicationConfig(appConfig, {
         redirect_uri: typeof window !== 'undefined' ? window.location.origin : '',
         audience: environment.auth0.audience,
       },
+      httpInterceptor: {
+        allowedList: [
+          {
+            uriMatcher: (uri) => uri.startsWith(environment.apiUrl),
+            tokenOptions: {
+              authorizationParams: { audience: environment.auth0.audience }
+            }
+          }
+        ]
+      },
       cacheLocation: 'localstorage',
       useRefreshTokens: true
     })
