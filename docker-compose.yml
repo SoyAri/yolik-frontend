@@ -47,7 +47,7 @@ services:
   # Si prefieres usar una imagen pre-publicada, reemplaza 'build' por 'image'.
   backend:
     build:
-      context: ../yolik-backend   # <-- ajusta esta ruta
+      context: ../Backend-Yolik
       dockerfile: Dockerfile
     image: yolik-backend:latest
     container_name: yolik-backend
