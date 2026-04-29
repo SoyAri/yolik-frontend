@@ -13,12 +13,14 @@ WORKDIR /app
 ARG API_URL=https://yolik.mx/api
 ARG AUTH0_DOMAIN
 ARG AUTH0_CLIENT_ID
+ARG AUTH0_AUDIENCE=https://yolik.mx/api
 ARG STRIPE_PUBLISHABLE_KEY
 
 # Exponer ARGs como variables de entorno para usarlas en el script node
 ENV API_URL=$API_URL
 ENV AUTH0_DOMAIN=$AUTH0_DOMAIN
 ENV AUTH0_CLIENT_ID=$AUTH0_CLIENT_ID
+ENV AUTH0_AUDIENCE=$AUTH0_AUDIENCE
 ENV STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY
 
 # Instalar dependencias primero (capa de caché separada)
@@ -38,6 +40,7 @@ RUN node -e " \
     auth0: { \
       domain: process.env.AUTH0_DOMAIN, \
       clientId: process.env.AUTH0_CLIENT_ID, \
+      audience: process.env.AUTH0_AUDIENCE, \
     }, \
     stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY, \
   }; \
