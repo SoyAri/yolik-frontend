@@ -75,8 +75,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      # Descomenta al activar SSL con Let's Encrypt:
-      # - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
       # - certbot-webroot:/var/www/certbot:ro
     depends_on:
       frontend:
