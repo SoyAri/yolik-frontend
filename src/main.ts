@@ -17,7 +17,15 @@ const auth0Config = mergeApplicationConfig(appConfig, {
       httpInterceptor: {
         allowedList: [
           {
-            uriMatcher: (uri) => uri.startsWith(environment.apiUrl),
+            // Rutas protegidas: todas las del backend EXCEPTO las públicas de productos.
+            // GET /api/products y GET /api/products/:id no requieren token.
+            uriMatcher: (uri) => {
+              if (!uri.startsWith(environment.apiUrl)) return false;
+              const path = uri.slice(environment.apiUrl.length).split('?')[0];
+              if (path === '/api/products') return false;
+              if (/^\/api\/products\/[^/]+$/.test(path)) return false;
+              return true;
+            },
             tokenOptions: {
               authorizationParams: { audience: environment.auth0.audience }
             }

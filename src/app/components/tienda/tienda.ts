@@ -39,11 +39,16 @@ export class Tienda implements OnInit {
   readonly regiones = ['Tehuacan', 'otro'];
 
   productoAgregado: string | null = null;
+  private isAuthenticated = false;
 
   ngOnInit() {
     this.ui.cartVisible.set(true);
     this.ui.searchVisible.set(false);
     this.cargarProductos();
+
+    if (isPlatformBrowser(this.platformId) && this.auth) {
+      this.auth.isAuthenticated$.subscribe(v => { this.isAuthenticated = v; });
+    }
   }
 
   cargarProductos() {
@@ -128,13 +133,12 @@ export class Tienda implements OnInit {
 
     if (producto.stockStatus === 'Sin existencias') return;
 
-    const agregado = this.carrito.agregarProducto(producto._id); // 👈 Solo el ID
-
-    if (!agregado) {
-      this.auth?.loginWithRedirect();
+    if (!this.isAuthenticated) {
+      this.auth?.loginWithRedirect({ appState: { target: '/tienda' } });
       return;
     }
 
+    this.carrito.agregarProducto(producto._id);
     this.productoAgregado = producto._id;
     setTimeout(() => this.productoAgregado = null, 1500);
   }
