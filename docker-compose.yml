@@ -23,6 +23,7 @@ services:
         API_URL:                 ${API_URL:-https://yolik.mx/api}
         AUTH0_DOMAIN:            ${AUTH0_DOMAIN}
         AUTH0_CLIENT_ID:         ${AUTH0_CLIENT_ID}
+        AUTH0_AUDIENCE:          ${AUTH0_AUDIENCE}
         STRIPE_PUBLISHABLE_KEY:  ${STRIPE_PUBLISHABLE_KEY}
     image: yolik-frontend:latest
     container_name: yolik-frontend
