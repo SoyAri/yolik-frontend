@@ -19,6 +19,11 @@ export class Navbar {
   auth = isPlatformBrowser(this.platformId) ? inject(AuthService) : null;
 
   isCartOpen = false;
+  isMobileMenuOpen = false;
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
 
   get cartItems() {
     return this.carrito.itemsDetalle();

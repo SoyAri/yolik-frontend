@@ -23,6 +23,16 @@
       </div>
     </div>
 
+    <!-- Botón hamburguesa - solo visible en móvil -->
+    <button
+      (click)="toggleMobileMenu()"
+      class="md:hidden flex flex-col gap-1.5 p-2"
+    >
+      <span class="w-6 h-0.5 bg-black transition-all" [class.rotate-45]="isMobileMenuOpen" [class.translate-y-2]="isMobileMenuOpen"></span>
+      <span class="w-6 h-0.5 bg-black transition-all" [class.opacity-0]="isMobileMenuOpen"></span>
+      <span class="w-6 h-0.5 bg-black transition-all" [class.-rotate-45]="isMobileMenuOpen" [class.-translate-y-2]="isMobileMenuOpen"></span>
+    </button>
+
     <div class="flex items-center gap-6">
       @if (ui.searchVisible()) {
         <div class="hidden lg:block relative">
@@ -80,6 +90,25 @@
       </div>
     </div>
   </nav>
+
+  <!-- Menú móvil desplegable -->
+  @if (isMobileMenuOpen) {
+    <div class="md:hidden fixed top-16 left-0 w-full bg-[#F2D2A9] border-b z-[99] flex flex-col py-4 px-6 gap-1 shadow-lg">
+      @for (item of ui.menuItems; track item.id) {
+        @if (item.visible() && (item.id !== 'administracion' || ui.isAdmin())) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="text-[#D11C5E] font-black border-l-4 border-[#D11C5E] pl-3"
+            [routerLinkActiveOptions]="{ exact: item.exact || false }"
+            (click)="toggleMobileMenu()"
+            class="py-3 text-sm font-bold uppercase tracking-widest hover:text-[#D11C5E] transition-all"
+          >
+            {{ item.label }}
+          </a>
+        }
+      }
+    </div>
+  }
 
   <!-- CARRITO LATERAL -->
   <div
