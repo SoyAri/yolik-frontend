@@ -41,7 +41,7 @@ export class UiService {
           this.userName.set(user.name ?? user.email ?? '');
 
           // IMPORTANTE: Lee los roles expuestos desde Auth0 Actions
-          const roles = user['https://yolik.com/roles'] || [];
+          const roles = user['https://yolik.mx/roles'] || [];
 
           // Verifica si el arreglo contiene el rol 'admin'
           if (Array.isArray(roles) && roles.includes('admin')) {
